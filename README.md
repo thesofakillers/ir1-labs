@@ -31,3 +31,15 @@ pip install -r requirements.txt
 ```
 
 So to install the required packages.
+
+## Useful Notes
+
+### Student IDs
+
+```JSON
+{
+  "giulio": "13010840",
+  "matteo": "13880527",
+  "velizar": ""
+}
+```
