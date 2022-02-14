@@ -4,7 +4,7 @@ Assignments for Information Retrieval 1 - UvA MSc AI
 
 ## Setup
 
-We use python 3.6. Once the correct python version is installed, run
+We use python 3.6.5 Once the correct python version is installed, run
 
 ```console
 pip install -r requirements.txt
