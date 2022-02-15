@@ -2,6 +2,13 @@
 
 Assignments for Information Retrieval 1 - UvA MSc AI
 
+## Development
+
+Because of the nightmare that is git version control and jupyter notebooks
+across 3 people, we use deepnote to work on this collaboratively.
+
+Before submission, we should check whether the resulting notebook works locally.
+
 ## Setup
 
 We use python 3.6.5. To set this up with conda, run
