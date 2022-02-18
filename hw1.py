@@ -1717,7 +1717,7 @@ class LsiRetrievalModel(VectorSpaceRetrievalModel):
         )
 
 
-# %% deletable=false editable=false nbgrader={"cell_type": "code", "checksum": "00399cfe13d60cb4beed1271e36004b0", "grade": true, "grade_id": "cell-5ce512650c1b2dfb", "locked": true, "points": 0, "schema_version": 3, "solution": false, "task": false} cell_id="00122-3bd0788f-3ce1-4afe-8344-6361027be847" deepnote_output_heights=[null, 611] deepnote_to_be_reexecuted=false source_hash="31499d4f" execution_start=1645186543878 execution_millis=2220 deepnote_cell_height=1451 deepnote_cell_type="code"
+# %% deletable=false editable=false nbgrader={"cell_type": "code", "checksum": "00399cfe13d60cb4beed1271e36004b0", "grade": true, "grade_id": "cell-5ce512650c1b2dfb", "locked": true, "points": 0, "schema_version": 3, "solution": false, "task": false} cell_id="00122-3bd0788f-3ce1-4afe-8344-6361027be847" deepnote_output_heights=[null, 611] deepnote_to_be_reexecuted=false source_hash="31499d4f" execution_start=1645186543878 execution_millis=2220 deepnote_cell_height=1451 deepnote_cell_type="code" jupyter={"outputs_hidden": true} tags=[]
 ##### Function check
 lsi = LsiRetrievalModel(doc_repr_2)
 lsi.train_model()
@@ -1932,7 +1932,7 @@ class LdaRetrievalModel(VectorSpaceRetrievalModel):
         )
 
 
-# %% deletable=false editable=false nbgrader={"cell_type": "code", "checksum": "be70fcb8098d0b6ce64cd2a10e6a05b7", "grade": true, "grade_id": "cell-86750b715f0345fd", "locked": true, "points": 0, "schema_version": 3, "solution": false, "task": false} cell_id="00136-7336885c-d6be-4e5e-8515-a71905b8c1df" deepnote_output_heights=[null, 611] deepnote_to_be_reexecuted=false source_hash="25223581" deepnote_cell_height=219.796875 execution_start=1645186548986 execution_millis=116845 is_output_hidden=true deepnote_cell_type="code" tags=[]
+# %% deletable=false editable=false nbgrader={"cell_type": "code", "checksum": "be70fcb8098d0b6ce64cd2a10e6a05b7", "grade": true, "grade_id": "cell-86750b715f0345fd", "locked": true, "points": 0, "schema_version": 3, "solution": false, "task": false} cell_id="00136-7336885c-d6be-4e5e-8515-a71905b8c1df" deepnote_output_heights=[null, 611] deepnote_to_be_reexecuted=false source_hash="25223581" deepnote_cell_height=219.796875 execution_start=1645186548986 execution_millis=116845 is_output_hidden=true deepnote_cell_type="code" tags=[] jupyter={"outputs_hidden": true}
 ##### Function check
 lda = LdaRetrievalModel(doc_repr_2)
 lda.train_model()
@@ -1977,7 +1977,7 @@ text.on_submit(handle_submit_2)
 # 2. For Word2Vec: You should also handle the following two cases: (a) A word in the query is not present in the vocabulary of the model and (b) none of the words in the query are present in the model - you can return 0 scores for all documents in this case. For either of these, you can check if a `word` is present in the vocab by using `word in self.model`
 #
 
-# %% deletable=false nbgrader={"cell_type": "code", "checksum": "83ab733608ed14c29c09b36b4e1b6daa", "grade": false, "grade_id": "cell-2b73759f9baf688f", "locked": false, "schema_version": 3, "solution": true, "task": false} cell_id="00141-4813dd67-6ab9-4a66-909c-c9ffb52e292c" deepnote_to_be_reexecuted=false source_hash="69fb62df" deepnote_cell_height=1767.796875 execution_start=1645186670275 execution_millis=5958 deepnote_output_heights=[null, 611] is_output_hidden=true deepnote_cell_type="code" tags=[]
+# %% deletable=false nbgrader={"cell_type": "code", "checksum": "83ab733608ed14c29c09b36b4e1b6daa", "grade": false, "grade_id": "cell-2b73759f9baf688f", "locked": false, "schema_version": 3, "solution": true, "task": false} cell_id="00141-4813dd67-6ab9-4a66-909c-c9ffb52e292c" deepnote_to_be_reexecuted=false source_hash="69fb62df" deepnote_cell_height=1767.796875 execution_start=1645186670275 execution_millis=5958 deepnote_output_heights=[null, 611] is_output_hidden=true deepnote_cell_type="code" tags=[] jupyter={"outputs_hidden": true}
 # TODO: Implement this! (10 points)
 class W2VRetrievalModel(VectorSpaceRetrievalModel):
     def __init__(self, doc_repr):
@@ -2080,7 +2080,7 @@ assert len(w2v.vectorize_query("this is a sentence that is not mellifluous")) ==
 # %% [markdown] deletable=false editable=false nbgrader={"cell_type": "markdown", "checksum": "8dfaabebcb06f308a7ca61fdc5d369e7", "grade": false, "grade_id": "cell-c2614fa067386384", "locked": true, "points": 8, "schema_version": 3, "solution": false, "task": true} cell_id="00143-dca6cd62-6d5c-4c14-8cc4-7299f1f8390e" deepnote_cell_height=52.390625 deepnote_cell_type="markdown"
 # \#### Please do not change this. This cell is used for grading.
 
-# %% cell_id="00144-7801f559-0e0a-405d-84bf-a02dd1269f5a" deepnote_to_be_reexecuted=false source_hash="8ab4bf3a" deepnote_cell_height=304.9375 execution_start=1645186676087 execution_millis=611 deepnote_output_heights=[null, 40.375] deepnote_cell_type="code" tags=[]
+# %% cell_id="00144-7801f559-0e0a-405d-84bf-a02dd1269f5a" deepnote_to_be_reexecuted=false source_hash="8ab4bf3a" deepnote_cell_height=304.9375 execution_start=1645186676087 execution_millis=611 deepnote_output_heights=[null, 40.375] deepnote_cell_type="code" tags=[] jupyter={"outputs_hidden": true}
 w2v_pretrained = W2VPretrainedRetrievalModel(doc_repr_2)
 w2v_pretrained.train_model()
 
@@ -2123,7 +2123,7 @@ text.on_submit(handle_submit_2)
 # For Doc2Vec, you will need to create a list of `TaggedDocument` instead of using the `self.corpus` or `self.documents` variable. Use the document id as the 'tag'.
 #
 
-# %% deletable=false nbgrader={"cell_type": "code", "checksum": "1f60fdeb97febb7f4a6fd5bf109aac20", "grade": false, "grade_id": "cell-680facdcc98a19ab", "locked": false, "schema_version": 3, "solution": true, "task": false} cell_id="00149-f7ea4b9a-161d-4405-9440-ab008f8bc0ac" deepnote_to_be_reexecuted=false source_hash="ad328353" deepnote_cell_height=2261 execution_start=1645187360265 execution_millis=33704 deepnote_output_heights=[null, 611] deepnote_cell_type="code" tags=[]
+# %% deletable=false nbgrader={"cell_type": "code", "checksum": "1f60fdeb97febb7f4a6fd5bf109aac20", "grade": false, "grade_id": "cell-680facdcc98a19ab", "locked": false, "schema_version": 3, "solution": true, "task": false} cell_id="00149-f7ea4b9a-161d-4405-9440-ab008f8bc0ac" deepnote_to_be_reexecuted=false source_hash="ad328353" deepnote_cell_height=2261 execution_start=1645187360265 execution_millis=33704 deepnote_output_heights=[null, 611] deepnote_cell_type="code" tags=[] jupyter={"outputs_hidden": true}
 # TODO: Implement this! (10 points)
 class D2VRetrievalModel(VectorSpaceRetrievalModel):
     def __init__(self, doc_repr):
