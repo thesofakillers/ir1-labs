@@ -657,7 +657,6 @@ assert isinstance(test_bow[0][1], float)
 ####
 
 # %% deletable=false editable=false nbgrader={"cell_type": "code", "checksum": "9af20897659edb62fe77598483590500", "grade": true, "grade_id": "cell-4eed3abf233d9b58", "locked": true, "points": 2, "schema_version": 3, "solution": false, "task": false} cell_id="00044-8c0e39e0-03a8-42d9-88c0-9811823ca925" deepnote_to_be_reexecuted=false source_hash="f3e133b9" execution_start=1645186539130 execution_millis=11244410 deepnote_cell_height=393.125 deepnote_cell_type="code"
-
 docs_by_id = dict(docs)
 
 
@@ -675,7 +674,6 @@ print_results(test_bow_2)
 
 
 # %% deletable=false editable=false nbgrader={"cell_type": "code", "checksum": "3c9c8b16c8e7d1032f101e9da8a6e845", "grade": true, "grade_id": "cell-4d65a2d7090c466c", "locked": true, "points": 3, "schema_version": 3, "solution": false, "task": false} cell_id="00045-c576132c-ae55-4ef4-bf93-365a98921a28" deepnote_to_be_reexecuted=false source_hash="76a29ddf" execution_start=1645186539173 execution_millis=2 deepnote_cell_height=285.125 deepnote_cell_type="code"
-
 test_bow_1 = bow_search("computer search word", index_set=1)[:5]
 print(f"BOW Results:")
 print_results(test_bow_1)
@@ -787,7 +785,6 @@ def tfidf_search(query, index_set):
 
 
 # %% deletable=false editable=false nbgrader={"cell_type": "code", "checksum": "7b66a514663d898694b09a23a597312b", "grade": true, "grade_id": "cell-bc68aeeacf42beb3", "locked": true, "points": 2, "schema_version": 3, "solution": false, "task": false} cell_id="00053-487c5ebc-c09b-46d0-9f43-38c4f74264e7" deepnote_to_be_reexecuted=false source_hash="4907bb8a" execution_start=1645186539384 execution_millis=80 deepnote_cell_height=225 deepnote_cell_type="code"
-
 #### Function check
 test_tfidf = tfidf_search("how to implement tf idf search", index_set=1)[:5]
 assert isinstance(test_tfidf, list)
@@ -798,21 +795,18 @@ assert isinstance(test_tfidf[0][1], float)
 ####
 
 # %% deletable=false editable=false nbgrader={"cell_type": "code", "checksum": "98fb1326cf4bf7983ae237ca8a9105f9", "grade": true, "grade_id": "cell-c7702fa8179fadb9", "locked": true, "points": 2, "schema_version": 3, "solution": false, "task": false} cell_id="00054-ca226c89-ef3a-464d-aeed-2750ea928db4" deepnote_to_be_reexecuted=false source_hash="fddf59b1" execution_start=1645186539544 execution_millis=222 deepnote_cell_height=285.125 deepnote_cell_type="code"
-
 test_tfidf_2 = tfidf_search("computer word search", index_set=2)[:5]
 print(f"TFIDF Results:")
 print_results(test_tfidf_2)
 
 
 # %% deletable=false editable=false nbgrader={"cell_type": "code", "checksum": "733b5b67be5e53989f5b763ce5e52ee9", "grade": true, "grade_id": "cell-3284f50ac29abbaa", "locked": true, "points": 3, "schema_version": 3, "solution": false, "task": false} cell_id="00055-861246a7-b33f-43ef-8ffc-16cd768e3e3e" deepnote_to_be_reexecuted=false source_hash="83683be1" execution_start=1645186539589 execution_millis=179 deepnote_cell_height=285.125 deepnote_cell_type="code"
-
 test_tfidf_1 = tfidf_search("computer word search", index_set=1)[:5]
 print(f"TFIDF Results:")
 print_results(test_tfidf_1)
 
 
 # %% deletable=false editable=false nbgrader={"cell_type": "code", "checksum": "e0edb37a5ae807a2de85d578c87ccb78", "grade": true, "grade_id": "cell-d908c80a3155354b", "locked": true, "points": 3, "schema_version": 3, "solution": false, "task": false} cell_id="00056-3513c3fe-3e9f-4b8c-aa0f-3f4a6d19816c" deepnote_to_be_reexecuted=false source_hash="9b7bb168" execution_start=1645186539634 execution_millis=1 deepnote_cell_height=280.75 deepnote_cell_type="code"
-
 print("top-5 docs for index1 with BOW search:", list(zip(*test_bow_1[:5]))[0])
 print("top-5 docs for index2 with BOW search:", list(zip(*test_bow_2[:5]))[0])
 print("top-5 docs for index1 with TF-IDF search:", list(zip(*test_tfidf_1[:5]))[0])
@@ -1248,7 +1242,6 @@ def precision_k(results, relevant_docs, k):
 
 
 # %% deletable=false editable=false nbgrader={"cell_type": "code", "checksum": "9222e35582b1840ffb60fd02fb0b60c3", "grade": true, "grade_id": "cell-e7ff0d91c319ca64", "locked": true, "points": 7, "schema_version": 3, "solution": false, "task": false} cell_id="00091-fa6b1685-64b1-424e-af93-8f763660db0f" deepnote_to_be_reexecuted=false source_hash="1417a891" execution_start=1645186540809 execution_millis=320 deepnote_cell_height=296.5625 deepnote_cell_type="code"
-
 #### Function check
 qid = queries[0][0]
 qtext = queries[0][1]
@@ -1447,7 +1440,7 @@ def evaluate_search_fn(search_fn, metric_fns, index_set=None):
     for metric, metric_vals in metrics.items():
         final_dict[metric] = metric_vals.mean()
 
-    # # fast version for debugging plot
+    # fast version for debugging plot
     # final_dict = {}
     # for metric, metric_vals in metrics.items():
     #     final_dict[metric] = metric_vals.mean() + 0.5
@@ -1475,43 +1468,51 @@ def evaluate_search_fn(search_fn, metric_fns, index_set=None):
 # - Clear titles, x label, y labels and legends (if applicable): 6 points
 
 # %% deletable=false nbgrader={"cell_type": "code", "checksum": "7e2588a925d13ddf588abe8311dc9cfc", "grade": true, "grade_id": "cell-46fda42a25863a04", "locked": false, "points": 20, "schema_version": 3, "solution": true, "task": false} cell_id="00106-7e245371-4141-4e15-a142-53d98c682cb7" deepnote_to_be_reexecuted=false source_hash="1e18f015" execution_start=1645186542869 execution_millis=0 deepnote_output_heights=[470.984375] deepnote_cell_height=729 deepnote_cell_type="code"
-# # YOUR CODE HERE
-# fig, axes = plt.subplots(2, 4, figsize=(14, 7), sharey=True)
-# axes = axes.flatten()
+# YOUR CODE HERE
+# takes roughly 10 mins to run
+fig, axes = plt.subplots(2, 4, figsize=(14, 7), sharey=True)
+axes = axes.flatten()
 
-# # need this to make side by side bars
-# N = len(list_of_search_fns)
-# method_loc = np.arange(N)
-# bar_width = 0.25
+# need this to make side by side bars
+N = len(list_of_search_fns)
+method_loc = np.arange(N)
+bar_width = 0.25
 
-# for j, (index_set) in enumerate([1, 2]):
-#     results = {}
+for j, (index_set) in enumerate([1, 2]):
+    results = {}
 
-#     for search_alg, search_fn in list_of_search_fns:
-#         results[search_alg] = evaluate_search_fn(search_fn, list_of_metrics, index_set=index_set)
+    for search_alg, search_fn in list_of_search_fns:
+        results[search_alg] = evaluate_search_fn(
+            search_fn, list_of_metrics, index_set=index_set
+        )
 
-#     for i, (metric_name, _metric_fn) in enumerate(list_of_metrics):
-#         metric_results = {k: v[metric_name] for k, v in results.items()}
+    for i, (metric_name, _metric_fn) in enumerate(list_of_metrics):
+        metric_results = {k: v[metric_name] for k, v in results.items()}
 
-#         labels = list(metric_results.keys())
-#         values = [metric_results[label] for label in labels]
+        labels = list(metric_results.keys())
+        values = [metric_results[label] for label in labels]
 
-#         axes[i].grid(True, which='major', axis='y', alpha=0.35)
-#         if i % 4 == 0:
-#             axes[i].set_ylabel("Average Metric Value")
-#         if j == 0:
-#             axes[i].bar(method_loc, values, bar_width, label=f"index set {index_set}")
-#         else:
-#             axes[i].bar(method_loc+bar_width, values, bar_width, label=f"index set {index_set}")
-#             axes[i].set_xticks(method_loc + bar_width / 2)
-#             axes[i].set_xticklabels(labels)
-#             axes[i].set_title(metric_name)
-#             if i == 7:
-#                 axes[i].legend()
+        axes[i].grid(True, which="major", axis="y", alpha=0.35)
+        if i % 4 == 0:
+            axes[i].set_ylabel("Average Metric Value")
+        if j == 0:
+            axes[i].bar(method_loc, values, bar_width, label=f"index set {index_set}")
+        else:
+            axes[i].bar(
+                method_loc + bar_width,
+                values,
+                bar_width,
+                label=f"index set {index_set}",
+            )
+            axes[i].set_xticks(method_loc + bar_width / 2)
+            axes[i].set_xticklabels(labels)
+            axes[i].set_title(metric_name)
+            if i == 7:
+                axes[i].legend()
 
-# fig.suptitle("Comparison of different term-based IR algorithms across various Metrics")
-# fig.tight_layout(rect=[0, 0.03, 1, 0.95])
-# plt.show()
+fig.suptitle("Comparison of different term-based IR algorithms across various Metrics")
+fig.tight_layout(rect=[0, 0.03, 1, 0.95])
+plt.show()
 
 # %% [markdown] deletable=false editable=false nbgrader={"cell_type": "markdown", "checksum": "e88c444a0acf4e398c65e289169b75f7", "grade": false, "grade_id": "cell-8aabe3bcf265deb0", "locked": true, "points": 10, "schema_version": 3, "solution": false, "task": true} cell_id="00107-1573dd7e-069e-42e6-9991-2e09c5ca522c" deepnote_cell_height=146.140625 deepnote_cell_type="markdown"
 # ---
@@ -1931,7 +1932,7 @@ class LdaRetrievalModel(VectorSpaceRetrievalModel):
         )
 
 
-# %% deletable=false editable=false nbgrader={"cell_type": "code", "checksum": "be70fcb8098d0b6ce64cd2a10e6a05b7", "grade": true, "grade_id": "cell-86750b715f0345fd", "locked": true, "points": 0, "schema_version": 3, "solution": false, "task": false} cell_id="00136-7336885c-d6be-4e5e-8515-a71905b8c1df" deepnote_output_heights=[null, 611] deepnote_to_be_reexecuted=false source_hash="25223581" deepnote_cell_height=219.796875 execution_start=1645186548986 execution_millis=116845 is_output_hidden=true deepnote_cell_type="code" tags=[] jupyter={"outputs_hidden": true}
+# %% deletable=false editable=false nbgrader={"cell_type": "code", "checksum": "be70fcb8098d0b6ce64cd2a10e6a05b7", "grade": true, "grade_id": "cell-86750b715f0345fd", "locked": true, "points": 0, "schema_version": 3, "solution": false, "task": false} cell_id="00136-7336885c-d6be-4e5e-8515-a71905b8c1df" deepnote_output_heights=[null, 611] deepnote_to_be_reexecuted=false source_hash="25223581" deepnote_cell_height=219.796875 execution_start=1645186548986 execution_millis=116845 is_output_hidden=true deepnote_cell_type="code" tags=[]
 ##### Function check
 lda = LdaRetrievalModel(doc_repr_2)
 lda.train_model()
@@ -1976,7 +1977,7 @@ text.on_submit(handle_submit_2)
 # 2. For Word2Vec: You should also handle the following two cases: (a) A word in the query is not present in the vocabulary of the model and (b) none of the words in the query are present in the model - you can return 0 scores for all documents in this case. For either of these, you can check if a `word` is present in the vocab by using `word in self.model`
 #
 
-# %% deletable=false nbgrader={"cell_type": "code", "checksum": "83ab733608ed14c29c09b36b4e1b6daa", "grade": false, "grade_id": "cell-2b73759f9baf688f", "locked": false, "schema_version": 3, "solution": true, "task": false} cell_id="00141-4813dd67-6ab9-4a66-909c-c9ffb52e292c" deepnote_to_be_reexecuted=false source_hash="69fb62df" deepnote_cell_height=1767.796875 execution_start=1645186670275 execution_millis=5958 deepnote_output_heights=[null, 611] is_output_hidden=true deepnote_cell_type="code" jupyter={"outputs_hidden": true} tags=[]
+# %% deletable=false nbgrader={"cell_type": "code", "checksum": "83ab733608ed14c29c09b36b4e1b6daa", "grade": false, "grade_id": "cell-2b73759f9baf688f", "locked": false, "schema_version": 3, "solution": true, "task": false} cell_id="00141-4813dd67-6ab9-4a66-909c-c9ffb52e292c" deepnote_to_be_reexecuted=false source_hash="69fb62df" deepnote_cell_height=1767.796875 execution_start=1645186670275 execution_millis=5958 deepnote_output_heights=[null, 611] is_output_hidden=true deepnote_cell_type="code" tags=[]
 # TODO: Implement this! (10 points)
 class W2VRetrievalModel(VectorSpaceRetrievalModel):
     def __init__(self, doc_repr):
@@ -2079,7 +2080,7 @@ assert len(w2v.vectorize_query("this is a sentence that is not mellifluous")) ==
 # %% [markdown] deletable=false editable=false nbgrader={"cell_type": "markdown", "checksum": "8dfaabebcb06f308a7ca61fdc5d369e7", "grade": false, "grade_id": "cell-c2614fa067386384", "locked": true, "points": 8, "schema_version": 3, "solution": false, "task": true} cell_id="00143-dca6cd62-6d5c-4c14-8cc4-7299f1f8390e" deepnote_cell_height=52.390625 deepnote_cell_type="markdown"
 # \#### Please do not change this. This cell is used for grading.
 
-# %% cell_id="00144-7801f559-0e0a-405d-84bf-a02dd1269f5a" deepnote_to_be_reexecuted=false source_hash="8ab4bf3a" deepnote_cell_height=304.9375 execution_start=1645186676087 execution_millis=611 deepnote_output_heights=[null, 40.375] deepnote_cell_type="code" jupyter={"outputs_hidden": true} tags=[]
+# %% cell_id="00144-7801f559-0e0a-405d-84bf-a02dd1269f5a" deepnote_to_be_reexecuted=false source_hash="8ab4bf3a" deepnote_cell_height=304.9375 execution_start=1645186676087 execution_millis=611 deepnote_output_heights=[null, 40.375] deepnote_cell_type="code" tags=[]
 w2v_pretrained = W2VPretrainedRetrievalModel(doc_repr_2)
 w2v_pretrained.train_model()
 
@@ -2122,7 +2123,7 @@ text.on_submit(handle_submit_2)
 # For Doc2Vec, you will need to create a list of `TaggedDocument` instead of using the `self.corpus` or `self.documents` variable. Use the document id as the 'tag'.
 #
 
-# %% deletable=false nbgrader={"cell_type": "code", "checksum": "1f60fdeb97febb7f4a6fd5bf109aac20", "grade": false, "grade_id": "cell-680facdcc98a19ab", "locked": false, "schema_version": 3, "solution": true, "task": false} cell_id="00149-f7ea4b9a-161d-4405-9440-ab008f8bc0ac" deepnote_to_be_reexecuted=false source_hash="ad328353" deepnote_cell_height=2261 execution_start=1645187360265 execution_millis=33704 deepnote_output_heights=[null, 611] deepnote_cell_type="code" jupyter={"outputs_hidden": true} tags=[]
+# %% deletable=false nbgrader={"cell_type": "code", "checksum": "1f60fdeb97febb7f4a6fd5bf109aac20", "grade": false, "grade_id": "cell-680facdcc98a19ab", "locked": false, "schema_version": 3, "solution": true, "task": false} cell_id="00149-f7ea4b9a-161d-4405-9440-ab008f8bc0ac" deepnote_to_be_reexecuted=false source_hash="ad328353" deepnote_cell_height=2261 execution_start=1645187360265 execution_millis=33704 deepnote_output_heights=[null, 611] deepnote_cell_type="code" tags=[]
 # TODO: Implement this! (10 points)
 class D2VRetrievalModel(VectorSpaceRetrievalModel):
     def __init__(self, doc_repr):
@@ -2325,81 +2326,50 @@ list_of_sem_search_fns = [
 ]
 
 # %% deletable=false nbgrader={"cell_type": "code", "checksum": "54707c4afac084299aeefa047259b4a9", "grade": true, "grade_id": "cell-7dd8273b0f5a3c22", "locked": false, "points": 10, "schema_version": 3, "solution": true, "task": false} cell_id="00164-ba70f9d6-5fd4-4ccc-9243-56081705849b" deepnote_to_be_reexecuted=false source_hash="7b8cce53" deepnote_cell_height=2368.78125 execution_start=1645197094542 execution_millis=699543 deepnote_output_heights=[472.390625, 472.390625] deepnote_cell_type="code"
-# YOUR CODE HERE
-fig, axes = plt.subplots(2, 4, figsize=(14, 7), sharey=True)
+# # YOUR CODE HERE
+# takes roughly 10 mins to run
+fig, axes = plt.subplots(2, 4, figsize=(14, 8), sharey=True)
 axes = axes.flatten()
 
 # need this to make side by side bars
-N = len(list_of_sem_search_fns)
+N = len(list_of_sem_search_fns) // 2
 method_loc = np.arange(N)
 bar_width = 0.25
 
-results = {}
+vanilla_search_fns = list_of_sem_search_fns[:N]
+reranked_search_fns = list_of_sem_search_fns[N:]
 
-for search_alg, search_fn in list_of_sem_search_fns:
-    results[search_alg] = evaluate_search_fn(search_fn, list_of_metrics)
+search_fns_map = {"Vanilla": vanilla_search_fns, "Reranked": reranked_search_fns}
 
-for i, (metric_name, _metric_fn) in enumerate(list_of_metrics):
-    metric_results = {k: v[metric_name] for k, v in results.items()}
+for j, mode in enumerate(["Vanilla", "Reranked"]):
+    results = {}
 
-    labels = list(metric_results.keys())
-    values = [metric_results[label] for label in labels]
-
-    axes[i].grid(True, which="major", axis="y", alpha=0.35)
-    if i % 4 == 0:
-        axes[i].set_ylabel("Average Metric Value")
-    axes[i].bar(method_loc, values, bar_width)
-    axes[i].set_xticks(method_loc)
-    axes[i].set_xticklabels(labels)
-    axes[i].set_title(metric_name)
-
-fig.suptitle("Comparison of different term-based IR algorithms across various Metrics")
-fig.tight_layout(rect=[0, 0.03, 1, 0.95])
-plt.show()
-
-# Compare semantic search with reranking to models from part 1
-
-fig, axes = plt.subplots(2, 4, figsize=(14, 7), sharey=True)
-axes = axes.flatten()
-
-list_of_rerank_sem_search_fns = [
-    ("lsi_rr", lsi_rerank.search),
-    ("lda_rr", lda_rerank.search),
-    ("w2v_rr", w2v_rerank.search),
-    ("w2v_pretrained_rr", w2v_pretrained_rerank.search),
-    ("d2v_rr", d2v_rerank.search),
-]
-
-N = len(list_of_rerank_sem_search_fns + list_of_search_fns)
-method_loc = np.arange(N)
-
-results = {}
-
-for i, (search_alg, search_fn) in enumerate(
-    list_of_rerank_sem_search_fns + list_of_search_fns
-):
-    if i >= len(list_of_rerank_sem_search_fns):
-        results[search_alg] = evaluate_search_fn(
-            search_fn, list_of_metrics, index_set=2
-        )
-    else:
+    for search_alg, search_fn in search_fns_map[mode]:
+        # remove _rr from reranked algo's so that the labels match
+        search_alg = search_alg.replace("_rr", "")
         results[search_alg] = evaluate_search_fn(search_fn, list_of_metrics)
 
-for i, (metric_name, _metric_fn) in enumerate(list_of_metrics):
-    metric_results = {k: v[metric_name] for k, v in results.items()}
+    for i, (metric_name, _metric_fn) in enumerate(list_of_metrics):
+        metric_results = {k: v[metric_name] for k, v in results.items()}
 
-    labels = list(metric_results.keys())
-    values = [metric_results[label] for label in labels]
+        labels = list(metric_results.keys())
+        values = [metric_results[label] for label in labels]
 
-    axes[i].grid(True, which="major", axis="y", alpha=0.35)
-    if i % 4 == 0:
-        axes[i].set_ylabel("Average Metric Value")
-    axes[i].bar(method_loc, values, bar_width)
-    axes[i].set_xticks(method_loc)
-    axes[i].set_xticklabels(labels)
-    axes[i].set_title(metric_name)
+        axes[i].grid(True, which="major", axis="y", alpha=0.35)
+        if i % 4 == 0:
+            axes[i].set_ylabel("Average Metric Value")
+        if j == 0:
+            axes[i].bar(method_loc, values, bar_width, label=f"{mode}")
+        else:
+            axes[i].bar(method_loc + bar_width, values, bar_width, label=f"{mode}")
+            axes[i].set_xticks(method_loc + bar_width / 2)
+            axes[i].set_xticklabels(labels, rotation=30, ha="right")
+            axes[i].set_title(metric_name)
+            if i == 7:
+                axes[i].legend()
 
-fig.suptitle("Comparison between semantic and term-based ranking algorithms")
+
+fig.suptitle("Comparison of different Semantic IR algorithms across various Metrics")
 fig.tight_layout(rect=[0, 0.03, 1, 0.95])
 plt.show()
 
