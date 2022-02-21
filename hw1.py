@@ -635,8 +635,7 @@ def bow_search(query, index_set):
     # YOUR CODE HERE
     # total count per document
     documents = defaultdict(float)
-    # we take a set of processed_query to avoid double counting repeated words in query
-    for token in set(processed_query):
+    for token in processed_query:
         for document_id, token_count in index[token]:
             # aggregate counts of this token across all documents
             documents[document_id] += token_count
@@ -773,7 +772,7 @@ def tfidf_search(query, index_set):
     N = len(docs)
     # YOUR CODE HERE
     documents = defaultdict(float)
-    for token in set(processed_query):
+    for token in processed_query:
         for document_id, token_count in index[token]:
             tf = np.log(1 + token_count)
             idf = np.log(N / df[token])
@@ -866,7 +865,7 @@ def naive_ql_search(query, index_set):
     processed_query = preprocess_query(query, index_set)
     # YOUR CODE HERE
     documents = {}
-    for token in set(processed_query):
+    for token in processed_query:
         for document_id, token_count in index[token]:
             # page 255 of Croft et al.
             p_qD = token_count / doc_lengths[document_id]
@@ -1312,13 +1311,21 @@ def average_precision(results, relevant_docs):
     Output: Average Precision
     """
     # YOUR CODE HERE
+    
+    relevances = np.array(
+        [doc_id in relevant_docs for doc_id, _score in results]
+    ).astype(np.float_)
+    
+    last_relevance = np.argmax(relevances[::-1]) + 1
+    # dont need to check beyond last relevance
+    results = results[:-last_relevance+1]
+        
     N = len(results)
     precisions = np.array(
         [precision_k(results, relevant_docs, n) for n in range(1, N + 1)]
     )
-    relevances = np.array(
-        [doc_id in relevant_docs for doc_id, _score in results]
-    ).astype(np.float_)
+    relevances = relevances[:-last_relevance+1]
+    # last_precision = np
     ave_p = np.sum((precisions * relevances)) / len(relevant_docs)
     return ave_p
 
@@ -1468,8 +1475,9 @@ def evaluate_search_fn(search_fn, metric_fns, index_set=None):
 # - Clear titles, x label, y labels and legends (if applicable): 6 points
 
 # %% deletable=false nbgrader={"cell_type": "code", "checksum": "7e2588a925d13ddf588abe8311dc9cfc", "grade": true, "grade_id": "cell-46fda42a25863a04", "locked": false, "points": 20, "schema_version": 3, "solution": true, "task": false} cell_id="00106-7e245371-4141-4e15-a142-53d98c682cb7" deepnote_to_be_reexecuted=false source_hash="1e18f015" execution_start=1645186542869 execution_millis=0 deepnote_output_heights=[470.984375] deepnote_cell_height=729 deepnote_cell_type="code"
+from pprint import pprint
 # YOUR CODE HERE
-# takes roughly 10 mins to run
+# takes roughly 5 mins to run
 fig, axes = plt.subplots(2, 4, figsize=(14, 7), sharey=True)
 axes = axes.flatten()
 
@@ -1479,18 +1487,24 @@ method_loc = np.arange(N)
 bar_width = 0.25
 
 for j, (index_set) in enumerate([1, 2]):
+    print(f"\nindex set {index_set}:")
     results = {}
 
     for search_alg, search_fn in list_of_search_fns:
         results[search_alg] = evaluate_search_fn(
             search_fn, list_of_metrics, index_set=index_set
         )
+        print(f"\t{search_alg}")
+        pprint(results[search_alg])
 
     for i, (metric_name, _metric_fn) in enumerate(list_of_metrics):
         metric_results = {k: v[metric_name] for k, v in results.items()}
-
+        # print(f"\t{metric_name}")
         labels = list(metric_results.keys())
         values = [metric_results[label] for label in labels]
+
+        # for label, value in metric_results.items():
+        #     print(f"\t\t{label}: {value}")
 
         axes[i].grid(True, which="major", axis="y", alpha=0.35)
         if i % 4 == 0:
@@ -1607,16 +1621,21 @@ def dot(vec_1, vec_2):
 
 # TODO: Implement this! (3 points)
 def cosine_sim(vec_1, vec_2):
-    # YOUR CODE HERE
 
-    # Adding a custom function to compute the modulus
+    # YOUR CODE HERE
+    # check for empty or 0-vectored vectors
+    if np.all([el == 0 for dim, el in vec_1]) or np.all([el == 0 for dim, el in vec_2]):
+        return 0
+    
+    # # Adding a custom function to compute the modulus
     def mod(
         vec,
     ):
         # Note: This still assumes that the vector is in the form :
         # [(int, float), (int, float), ...]
         return np.sqrt(sum(x[1] ** 2 for x in vec))
-
+    
+    # actually compute similarity
     return dot(vec_1, vec_2) / (mod(vec_1) * mod(vec_2))
 
 
@@ -1717,7 +1736,7 @@ class LsiRetrievalModel(VectorSpaceRetrievalModel):
         )
 
 
-# %% deletable=false editable=false nbgrader={"cell_type": "code", "checksum": "00399cfe13d60cb4beed1271e36004b0", "grade": true, "grade_id": "cell-5ce512650c1b2dfb", "locked": true, "points": 0, "schema_version": 3, "solution": false, "task": false} cell_id="00122-3bd0788f-3ce1-4afe-8344-6361027be847" deepnote_output_heights=[null, 611] deepnote_to_be_reexecuted=false source_hash="31499d4f" execution_start=1645186543878 execution_millis=2220 deepnote_cell_height=1451 deepnote_cell_type="code" jupyter={"outputs_hidden": true} tags=[]
+# %% deletable=false editable=false nbgrader={"cell_type": "code", "checksum": "00399cfe13d60cb4beed1271e36004b0", "grade": true, "grade_id": "cell-5ce512650c1b2dfb", "locked": true, "points": 0, "schema_version": 3, "solution": false, "task": false} cell_id="00122-3bd0788f-3ce1-4afe-8344-6361027be847" deepnote_output_heights=[null, 611] deepnote_to_be_reexecuted=false source_hash="31499d4f" execution_start=1645186543878 execution_millis=2220 deepnote_cell_height=1451 deepnote_cell_type="code" tags=[] jupyter={"outputs_hidden": true}
 ##### Function check
 lsi = LsiRetrievalModel(doc_repr_2)
 lsi.train_model()
@@ -1754,20 +1773,8 @@ class DenseRetrievalRanker:
         Returns a list of (doc_id, score) tuples
         """
         result = []
-        # handle queries where all words were not found in vocab, or empty queries
-        if np.all([el == 0 for dim, el in query_vector]):
-            # handle this by returning all documents scored as 0, as req'd in section 8
-            for doc_id, doc in self.vectorized_documents.items():
-                result.append((doc_id, 0))
-        # handle valid queries
-        else:
-            for doc_id, doc in self.vectorized_documents.items():
-                # check for empty or 0-vectored docs
-                if np.all([el == 0 for dim, el in doc]):
-                    # score empty docs as 0
-                    result.append((doc_id, 0))
-                else:
-                    result.append((doc_id, self.similarity_fn(query_vector, doc)))
+        for doc_id, doc in self.vectorized_documents.items():
+            result.append((doc_id, self.similarity_fn(query_vector, doc)))
         return result
 
     def search(self, query):
@@ -2343,11 +2350,14 @@ search_fns_map = {"Vanilla": vanilla_search_fns, "Reranked": reranked_search_fns
 
 for j, mode in enumerate(["Vanilla", "Reranked"]):
     results = {}
-
+    print(f"\n{mode}")
+    
     for search_alg, search_fn in search_fns_map[mode]:
         # remove _rr from reranked algo's so that the labels match
         search_alg = search_alg.replace("_rr", "")
         results[search_alg] = evaluate_search_fn(search_fn, list_of_metrics)
+        print(f"\t{search_alg}")
+        pprint(results[search_alg])
 
     for i, (metric_name, _metric_fn) in enumerate(list_of_metrics):
         metric_results = {k: v[metric_name] for k, v in results.items()}
@@ -2372,6 +2382,52 @@ for j, mode in enumerate(["Vanilla", "Reranked"]):
 fig.suptitle("Comparison of different Semantic IR algorithms across various Metrics")
 fig.tight_layout(rect=[0, 0.03, 1, 0.95])
 plt.show()
+
+
+# #2nd Plot: Compare semantic search with reranking to models from part 1,
+# commented out as it is extra work: uncomment and rerun to see (will take time)
+
+# fig, axes = plt.subplots(2, 4, figsize=(14, 7), sharey=True)
+# axes = axes.flatten()
+
+# list_of_rerank_sem_search_fns = [
+#     ("lsi_rr", lsi_rerank.search),
+#     ("lda_rr", lda_rerank.search),
+#     ("w2v_rr", w2v_rerank.search),
+#     # ("w2v_pretrained_rr", w2v_pretrained_rerank.search),
+#     ("d2v_rr", d2v_rerank.search),
+# ]
+
+# N = len(list_of_rerank_sem_search_fns + list_of_search_fns)
+# method_loc = np.arange(N)
+
+# results = {}
+
+# for i, (search_alg, search_fn) in enumerate(reranked_search_fns + list_of_search_fns):
+#     if i >= len(list_of_rerank_sem_search_fns):
+#         results[search_alg] = evaluate_search_fn(
+#             search_fn, list_of_metrics, index_set=2
+#         )
+#     else:
+#         results[search_alg] = evaluate_search_fn(search_fn, list_of_metrics)
+
+# for i, (metric_name, _metric_fn) in enumerate(list_of_metrics):
+#     metric_results = {k: v[metric_name] for k, v in results.items()}
+
+#     labels = list(metric_results.keys())
+#     values = [metric_results[label] for label in labels]
+
+#     axes[i].grid(True, which="major", axis="y", alpha=0.35)
+#     if i % 4 == 0:
+#         axes[i].set_ylabel("Average Metric Value")
+#     axes[i].bar(method_loc, values, bar_width)
+#     axes[i].set_xticks(method_loc)
+#     axes[i].set_xticklabels(labels, rotation=45)
+#     axes[i].set_title(metric_name)
+
+# fig.suptitle("Comparison between semantic and term-based ranking algorithms")
+# fig.tight_layout(rect=[0, 0.03, 1, 0.95])
+# plt.show()
 
 # %% [markdown] deletable=false editable=false nbgrader={"cell_type": "markdown", "checksum": "a8a3b6189bdde66704c694d85e38d049", "grade": false, "grade_id": "cell-deb2ef3daa306e82", "locked": true, "schema_version": 3, "solution": false, "task": false} cell_id="00165-821599fc-9264-4123-a542-2b0354dde4f7" deepnote_cell_height=145.1875 deepnote_cell_type="markdown"
 # ### Section 10.2: Summary (20 points)
