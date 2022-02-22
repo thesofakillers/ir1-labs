@@ -864,18 +864,25 @@ def naive_ql_search(query, index_set):
     doc_lengths = get_doc_lengths(index_set)
     processed_query = preprocess_query(query, index_set)
     # YOUR CODE HERE
-    documents = {}
+    results = {}
+
     for token in processed_query:
-        for document_id, token_count in index[token]:
-            # page 255 of Croft et al.
-            p_qD = token_count / doc_lengths[document_id]
-            if document_id not in documents:
-                documents[document_id] = p_qD
+        # convert to dictionary for fast lookup
+        token_counts = dict(index[token])
+        for doc_id in doc_lengths.keys():
+            if doc_id not in token_counts:
+                # because token count is 0
+                p_qD = 0
             else:
-                documents[document_id] *= p_qD
-    # convert documents to list and sort descending
-    documents = sorted(list(documents.items()), key=lambda x: x[1], reverse=True)
-    return documents
+                # otherwise we're able to get the tok count and proceed with computation
+                token_count = token_counts[doc_id]
+                p_qD = token_count / doc_lengths[doc_id]
+            if doc_id not in results:
+                results[doc_id] = p_qD
+            else:
+                results[doc_id] *= p_qD
+    results = sorted(list(results.items()), key=lambda x: x[1], reverse=True)
+    return results
 
 
 # %% deletable=false editable=false nbgrader={"cell_type": "code", "checksum": "b550d15bdad28354c336020a00c33d56", "grade": true, "grade_id": "cell-5a83ac12ecde8578", "locked": true, "points": 3, "schema_version": 3, "solution": false, "task": false} cell_id="00060-7b8590ee-afcd-44ee-b551-3938924f8c30" deepnote_to_be_reexecuted=false source_hash="54190022" execution_start=1645186539699 execution_millis=0 deepnote_cell_height=285.125 deepnote_cell_type="code"
@@ -1311,20 +1318,20 @@ def average_precision(results, relevant_docs):
     Output: Average Precision
     """
     # YOUR CODE HERE
-    
+
     relevances = np.array(
         [doc_id in relevant_docs for doc_id, _score in results]
     ).astype(np.float_)
-    
+
     last_relevance = np.argmax(relevances[::-1]) + 1
     # dont need to check beyond last relevance
-    results = results[:-last_relevance+1]
-        
+    results = results[: -last_relevance + 1]
+
     N = len(results)
     precisions = np.array(
         [precision_k(results, relevant_docs, n) for n in range(1, N + 1)]
     )
-    relevances = relevances[:-last_relevance+1]
+    relevances = relevances[: -last_relevance + 1]
     # last_precision = np
     ave_p = np.sum((precisions * relevances)) / len(relevant_docs)
     return ave_p
@@ -1476,6 +1483,7 @@ def evaluate_search_fn(search_fn, metric_fns, index_set=None):
 
 # %% deletable=false nbgrader={"cell_type": "code", "checksum": "7e2588a925d13ddf588abe8311dc9cfc", "grade": true, "grade_id": "cell-46fda42a25863a04", "locked": false, "points": 20, "schema_version": 3, "solution": true, "task": false} cell_id="00106-7e245371-4141-4e15-a142-53d98c682cb7" deepnote_to_be_reexecuted=false source_hash="1e18f015" execution_start=1645186542869 execution_millis=0 deepnote_output_heights=[470.984375] deepnote_cell_height=729 deepnote_cell_type="code"
 from pprint import pprint
+
 # YOUR CODE HERE
 # takes roughly 5 mins to run
 fig, axes = plt.subplots(2, 4, figsize=(14, 7), sharey=True)
@@ -1626,7 +1634,7 @@ def cosine_sim(vec_1, vec_2):
     # check for empty or 0-vectored vectors
     if np.all([el == 0 for dim, el in vec_1]) or np.all([el == 0 for dim, el in vec_2]):
         return 0
-    
+
     # # Adding a custom function to compute the modulus
     def mod(
         vec,
@@ -1634,7 +1642,7 @@ def cosine_sim(vec_1, vec_2):
         # Note: This still assumes that the vector is in the form :
         # [(int, float), (int, float), ...]
         return np.sqrt(sum(x[1] ** 2 for x in vec))
-    
+
     # actually compute similarity
     return dot(vec_1, vec_2) / (mod(vec_1) * mod(vec_2))
 
@@ -2351,7 +2359,7 @@ search_fns_map = {"Vanilla": vanilla_search_fns, "Reranked": reranked_search_fns
 for j, mode in enumerate(["Vanilla", "Reranked"]):
     results = {}
     print(f"\n{mode}")
-    
+
     for search_alg, search_fn in search_fns_map[mode]:
         # remove _rr from reranked algo's so that the labels match
         search_alg = search_alg.replace("_rr", "")
