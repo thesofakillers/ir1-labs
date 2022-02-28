@@ -46,7 +46,6 @@ So to install the required packages.
 ```JSON
 {
   "giulio": "13010840",
-  "matteo": "13880527",
-  "velizar": ""
+  "matteo": "13880527"
 }
 ```
