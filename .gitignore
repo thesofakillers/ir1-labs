@@ -1,3 +1,6 @@
+# ignore jupyter notebooks, since we handle them with jupytext
+*.ipynb
+
 # custom
 .DS_Store
 
