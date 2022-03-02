@@ -15,17 +15,24 @@ instead a python-representation maintained by jupytext.
 Upon cloning the repository and completing the setup below, users should run
 
 ```console
-jupytext --sync hw1.py
+jupytext --sync hw2/hw2.py
 ```
 
-For generating `hw1.ipynb`, for example. Once generated, users can work on the
-notebook using Jupyter Notebook, Jupyter Lab, VS Code or any other IDE. Edits on
-the notebook will be automatically reflected on its paired python file, which we
-then commit to version control. Merge conflicts should be minimal and easily
-dealt with in this way.
+For generating `hw2/hw2.ipynb`, for example. Once generated, users can work on
+the notebook using Jupyter Notebook, Jupyter Lab, VS Code or any other IDE.
+Edits on the notebook will be automatically reflected on its paired python file,
+which we then commit to version control. Merge conflicts should be minimal and
+easily dealt with in this way.
 
 Before submission, we should copy paste our cells into a fresh submission
 notebook to avoid issues with autograding.
+
+Once the notebook is complete, you can add it to the repository for posterity by
+force-staging it with
+
+```console
+git add -f hw2.ipynb
+```
 
 ## Setup
 
@@ -52,7 +59,8 @@ conda install https://repo.anaconda.com/pkgs/main/osx-64/python-3.6.5-hc167b69_1
 Once the correct python version is installed and activated, run
 
 ```console
-pip install -r requirements.txt
+pip install -r hw1/requirements.txt
+pip install -r hw2/requirements.txt
 ```
 
 So to install the required packages.
@@ -73,3 +81,5 @@ pip install jupytext
   "matteo": "13880527"
 }
 ```
+
+Velizar decided to drop the course but will continue helping us :)
