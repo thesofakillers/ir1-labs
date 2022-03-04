@@ -1,6 +1,7 @@
 # ---
 # jupyter:
 #   jupytext:
+#     formats: ipynb,py:percent
 #     text_representation:
 #       extension: .py
 #       format_name: percent
@@ -262,7 +263,7 @@ class NeuralModule(nn.Module):
           nn.Linear(501, 256),
           nn.ReLU(),
           nn.Linear(256, 1),
-          nn.ReLU()     # TODO: does this go here? 
+          nn.ReLU()
         )
     
     def forward(self, x):
@@ -342,7 +343,7 @@ def pointwise_loss(output, target):
     assert output.size(1) == 1
     
     # YOUR CODE HERE
-    return np.square(np.subtract(target,output)).mean() # TODO: this is giving different results than in the spreadhseet
+    return torch.square(torch.subtract(target,output.T)).mean()
 
 
 
@@ -403,8 +404,33 @@ def train_pointwise(net, params):
     optimizer = Adam(net.parameters(), lr=params.lr)
     loss_fn = pointwise_loss
     
-    # YOUR CODE HERE
-    raise NotImplementedError()
+    # YOUR CODE 
+    # I guess this is not strictly needed given the network, but it's still good practice
+    device = torch.device("cpu") if not torch.cuda.is_available() else torch.device("cuda:0") 
+    
+    train_data = DataLoader(LTRData(data, "train"), batch_size=params.batch_size, shuffle=True)
+    
+    for epoch in range(params.epochs):
+        ###########
+        #  Train  #
+        ###########
+        net.train()
+        for x, y in tqdm(train_data, desc=f"Epoch {epoch+1}", leave=False):
+            x,y = x.to(device), y.to(device)
+            optimizer.zero_grad() 
+            preds = net(x)
+            loss = loss_fn(preds, y)
+            loss.backward()
+            optimizer.step()
+        
+            net.eval()
+            train_metrics_epoch.append(evaluate_model(net, "train", batch_size=params.batch_size))
+
+        ##############
+        # Validation #
+        ##############
+        
+        val_metrics_epoch.append(evaluate_model(net, "validation", batch_size=params.batch_size))
     
     return {
         "metrics_val": val_metrics_epoch,
