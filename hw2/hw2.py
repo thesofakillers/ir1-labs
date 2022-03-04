@@ -256,9 +256,14 @@ class NeuralModule(nn.Module):
         """
         Initializes the Pointwise neural network.
         """
-        
         # YOUR CODE HERE
-        raise NotImplementedError()
+        super().__init__()
+        self.model = nn.Sequential(
+          nn.Linear(501, 256),
+          nn.ReLU(),
+          nn.Linear(256, 1),
+          nn.ReLU()     # TODO: does this go here? 
+        )
     
     def forward(self, x):
         """
@@ -267,7 +272,7 @@ class NeuralModule(nn.Module):
         Output: a [N, 1] tensor
         """
         # YOUR CODE HERE
-        raise NotImplementedError()
+        return self.model(x)
         
 
 
@@ -300,7 +305,11 @@ def train_batch(net, x, y, loss_fn, optimizer):
             optimizer: an optimizer for computing the gradients (we use Adam)
     """
     # YOUR CODE HERE
-    raise NotImplementedError()
+    optimizer.zero_grad()       # Sets the gradients of all parameters to zero
+    preds = net(x)              # Foward pass
+    loss = loss_fn(preds, y)    # Compute loss
+    loss.backward()
+    optimizer.step()
 
 
 # %% deletable=false editable=false nbgrader={"cell_type": "code", "checksum": "5d3b153a31a3c45b124c78687b139084", "grade": true, "grade_id": "cell-541e71c6ca54d4f9", "locked": true, "points": 0, "schema_version": 3, "solution": false, "task": false}
@@ -333,7 +342,7 @@ def pointwise_loss(output, target):
     assert output.size(1) == 1
     
     # YOUR CODE HERE
-    raise NotImplementedError()
+    return np.square(np.subtract(target,output)).mean() # TODO: this is giving different results than in the spreadhseet
 
 
 
@@ -526,7 +535,7 @@ features_i, labels_i = train_data[q_i]
 print(f"Query {q_i} has {len(features_i)} query-document pairs")
 print(f"Shape of features for Query {q_i}: {features_i.size()}")
 print(f"Shape of labels for Query {q_i}: {labels_i.size()}")
-        
+
 
 # %% [markdown] deletable=false editable=false nbgrader={"cell_type": "markdown", "checksum": "8460c471db823c23b58d70e117dadbe4", "grade": false, "grade_id": "cell-acdb1bfcd2ec582e", "locked": true, "schema_version": 3, "solution": false, "task": false}
 # **Implementation (35 points):**
