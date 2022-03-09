@@ -20,13 +20,13 @@ six = "1.14.0"
 [tool.poetry.dev-dependencies]
 jupytext = "^1.13.7"
 notebook = "^6.4.8"
-black = {version = "^22.1.0", optional = true}
-pylint = {version = "^2.12.2", optional = true}
-jupyterlab-code-formatter = {version = "^1.4.10", optional = true}
-jupyterlab = {version = "^3.2", optional = true}
-jupyter-contrib-nbextensions = {version = "^0.5.1", optional = true}
+pylint = "^2.12.2"
+jupyterlab = "^3.2"
+jupyterlab-code-formatter = "^1.4.10"
+nbdime = "^3.1.1"
+jupyter-contrib-nbextensions = "^0.5.1"
 # remember to run jupyter contrib nbextension install --sys-prefix after this
-nbdime = {version = "^3.1.1", optional = true}
+black = "^22.1.0"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

@@ -3,7 +3,7 @@ name = "anyio"
 version = "3.5.0"
 description = "High level compatibility layer for multiple asynchronous event loop implementations"
 category = "dev"
-optional = true
+optional = false
 python-versions = ">=3.6.2"
 
 [package.dependencies]
@@ -64,7 +64,7 @@ name = "astroid"
 version = "2.9.3"
 description = "An abstract syntax tree for Python with inference support."
 category = "dev"
-optional = true
+optional = false
 python-versions = ">=3.6.2"
 
 [package.dependencies]
@@ -100,7 +100,7 @@ name = "babel"
 version = "2.9.1"
 description = "Internationalization utilities"
 category = "dev"
-optional = true
+optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
 
 [package.dependencies]
@@ -119,7 +119,7 @@ name = "black"
 version = "22.1.0"
 description = "The uncompromising code formatter."
 category = "dev"
-optional = true
+optional = false
 python-versions = ">=3.6.2"
 
 [package.dependencies]
@@ -183,7 +183,7 @@ name = "click"
 version = "8.0.4"
 description = "Composable command line interface toolkit"
 category = "dev"
-optional = true
+optional = false
 python-versions = ">=3.6"
 
 [package.dependencies]
@@ -203,7 +203,7 @@ name = "contextvars"
 version = "2.4"
 description = "PEP 567 Backport"
 category = "dev"
-optional = true
+optional = false
 python-versions = "*"
 
 [package.dependencies]
@@ -283,7 +283,7 @@ name = "gitdb"
 version = "4.0.9"
 description = "Git Object Database"
 category = "dev"
-optional = true
+optional = false
 python-versions = ">=3.6"
 
 [package.dependencies]
@@ -294,7 +294,7 @@ name = "gitpython"
 version = "3.1.20"
 description = "Python Git Library"
 category = "dev"
-optional = true
+optional = false
 python-versions = ">=3.6"
 
 [package.dependencies]
@@ -314,7 +314,7 @@ name = "immutables"
 version = "0.16"
 description = "Immutable Collections"
 category = "dev"
-optional = true
+optional = false
 python-versions = ">=3.6"
 
 [package.dependencies]
@@ -421,7 +421,7 @@ name = "isort"
 version = "5.10.1"
 description = "A Python utility / library to sort Python imports."
 category = "dev"
-optional = true
+optional = false
 python-versions = ">=3.6.1,<4.0"
 
 [package.extras]
@@ -464,7 +464,7 @@ name = "json5"
 version = "0.9.6"
 description = "A Python implementation of the JSON5 data format."
 category = "dev"
-optional = true
+optional = false
 python-versions = "*"
 
 [package.extras]
@@ -512,7 +512,7 @@ name = "jupyter-contrib-core"
 version = "0.3.3"
 description = "Common utilities for jupyter-contrib projects."
 category = "dev"
-optional = true
+optional = false
 python-versions = "*"
 
 [package.dependencies]
@@ -529,7 +529,7 @@ name = "jupyter-contrib-nbextensions"
 version = "0.5.1"
 description = "A collection of Jupyter nbextensions."
 category = "dev"
-optional = true
+optional = false
 python-versions = "*"
 
 [package.dependencies]
@@ -566,7 +566,7 @@ name = "jupyter-highlight-selected-word"
 version = "0.2.0"
 description = "Jupyter notebook extension that enables highlighting every instance of the current word in the notebook."
 category = "dev"
-optional = true
+optional = false
 python-versions = "*"
 
 [[package]]
@@ -574,7 +574,7 @@ name = "jupyter-latex-envs"
 version = "1.4.6"
 description = "Jupyter notebook extension which supports (some) LaTeX environments within markdown cells. Also provides support for labels and crossreferences, document wide numbering, bibliography, and more..."
 category = "dev"
-optional = true
+optional = false
 python-versions = "*"
 
 [package.dependencies]
@@ -589,7 +589,7 @@ name = "jupyter-nbextensions-configurator"
 version = "0.4.1"
 description = "jupyter serverextension providing configuration interfaces for nbextensions."
 category = "dev"
-optional = true
+optional = false
 python-versions = "*"
 
 [package.dependencies]
@@ -608,7 +608,7 @@ name = "jupyter-server"
 version = "1.13.1"
 description = "The backend—i.e. core services, APIs, and REST endpoints—to Jupyter web applications."
 category = "dev"
-optional = true
+optional = false
 python-versions = ">=3.6"
 
 [package.dependencies]
@@ -636,7 +636,7 @@ name = "jupyter-server-mathjax"
 version = "0.2.3"
 description = "MathJax resources as a Jupyter Server Extension."
 category = "dev"
-optional = true
+optional = false
 python-versions = ">=3.6"
 
 [package.dependencies]
@@ -650,7 +650,7 @@ name = "jupyterlab"
 version = "3.2.9"
 description = "JupyterLab computational environment"
 category = "dev"
-optional = true
+optional = false
 python-versions = ">=3.6"
 
 [package.dependencies]
@@ -672,7 +672,7 @@ name = "jupyterlab-code-formatter"
 version = "1.4.10"
 description = "Code formatter for JupyterLab"
 category = "dev"
-optional = true
+optional = false
 python-versions = ">=3.6"
 
 [package.dependencies]
@@ -694,7 +694,7 @@ name = "jupyterlab-server"
 version = "2.10.3"
 description = "A set of server components for JupyterLab and JupyterLab like applications ."
 category = "dev"
-optional = true
+optional = false
 python-versions = ">=3.6"
 
 [package.dependencies]
@@ -742,7 +742,7 @@ name = "lazy-object-proxy"
 version = "1.7.1"
 description = "A fast and thorough lazy object proxy."
 category = "dev"
-optional = true
+optional = false
 python-versions = ">=3.6"
 
 [[package]]
@@ -750,7 +750,7 @@ name = "lxml"
 version = "4.8.0"
 description = "Powerful and Pythonic XML processing library combining libxml2/libxslt with the ElementTree API."
 category = "dev"
-optional = true
+optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, != 3.4.*"
 
 [package.extras]
@@ -807,7 +807,7 @@ name = "mccabe"
 version = "0.6.1"
 description = "McCabe checker, plugin for flake8"
 category = "dev"
-optional = true
+optional = false
 python-versions = "*"
 
 [[package]]
@@ -839,7 +839,7 @@ name = "mypy-extensions"
 version = "0.4.3"
 description = "Experimental type system extensions for programs checked with the mypy typechecker."
 category = "dev"
-optional = true
+optional = false
 python-versions = "*"
 
 [[package]]
@@ -847,7 +847,7 @@ name = "nbclassic"
 version = "0.3.5"
 description = "Jupyter Notebook as a Jupyter Server extension."
 category = "dev"
-optional = true
+optional = false
 python-versions = ">=3.6"
 
 [package.dependencies]
@@ -912,7 +912,7 @@ name = "nbdime"
 version = "3.1.1"
 description = "Diff and merge of Jupyter Notebooks"
 category = "dev"
-optional = true
+optional = false
 python-versions = ">=3.6"
 
 [package.dependencies]
@@ -1064,7 +1064,7 @@ name = "pathspec"
 version = "0.9.0"
 description = "Utility library for gitignore style pattern matching of file paths."
 category = "dev"
-optional = true
+optional = false
 python-versions = "!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*,>=2.7"
 
 [[package]]
@@ -1091,7 +1091,7 @@ name = "platformdirs"
 version = "2.4.0"
 description = "A small Python module for determining appropriate platform-specific dirs, e.g. a \"user data dir\"."
 category = "dev"
-optional = true
+optional = false
 python-versions = ">=3.6"
 
 [package.extras]
@@ -1157,7 +1157,7 @@ name = "pylint"
 version = "2.12.2"
 description = "python code static checker"
 category = "dev"
-optional = true
+optional = false
 python-versions = ">=3.6.2"
 
 [package.dependencies]
@@ -1315,7 +1315,7 @@ name = "smmap"
 version = "5.0.0"
 description = "A pure Python implementation of a sliding window memory map manager"
 category = "dev"
-optional = true
+optional = false
 python-versions = ">=3.6"
 
 [[package]]
@@ -1323,7 +1323,7 @@ name = "sniffio"
 version = "1.2.0"
 description = "Sniff out which async library your code is running under"
 category = "dev"
-optional = true
+optional = false
 python-versions = ">=3.5"
 
 [package.dependencies]
@@ -1369,7 +1369,7 @@ name = "tomli"
 version = "1.2.3"
 description = "A lil' TOML parser"
 category = "dev"
-optional = true
+optional = false
 python-versions = ">=3.6"
 
 [[package]]
@@ -1425,7 +1425,7 @@ name = "typed-ast"
 version = "1.5.2"
 description = "a fork of Python 2 and 3 ast modules with type comment support"
 category = "dev"
-optional = true
+optional = false
 python-versions = ">=3.6"
 
 [[package]]
@@ -1470,7 +1470,7 @@ name = "websocket-client"
 version = "1.3.1"
 description = "WebSocket client for Python with low level API options"
 category = "dev"
-optional = true
+optional = false
 python-versions = ">=3.6"
 
 [package.extras]
@@ -1494,7 +1494,7 @@ name = "wrapt"
 version = "1.13.3"
 description = "Module for decorators, wrappers and monkey patching."
 category = "dev"
-optional = true
+optional = false
 python-versions = "!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*,>=2.7"
 
 [[package]]
@@ -1512,7 +1512,7 @@ testing = ["pytest (>=4.6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytes
 [metadata]
 lock-version = "1.1"
 python-versions = "3.6.5"
-content-hash = "37d3e84b3f8cf9e631b91e460f8df369d70a3dab5c546d0b09701ba337c0991d"
+content-hash = "cf12fedb972cc48bc02dd03bd9fd2c3263e3a3a34cfa10ad28f0666215fcd1b9"
 
 [metadata.files]
 anyio = [
