@@ -296,7 +296,9 @@ out = point_nn_reg(inp)
 
 def train_batch(net, x, y, loss_fn, optimizer):
     """
-    Takes as input a batch of size N, i.e. feature matrix of size (N, 501), label vector of size (N), the loss function and optimizer for computing the gradients, and updates the weights of the model.
+    Takes as input a batch of size N, i.e. feature matrix of size (N, 501),
+    label vector of size (N), the loss function and optimizer for computing the gradients,
+    and updates the weights of the model.
 
     Input:  x: feature matrix, a [N, 501] tensor
             y: label vector, a [N] tensor
@@ -438,7 +440,7 @@ def train_pointwise(net, params):
 # %% [markdown] deletable=false editable=false nbgrader={"cell_type": "markdown", "checksum": "c70bb634cfc30e73ff571f4bfcb6b9ae", "grade": false, "grade_id": "cell-1e47c28fe54e811c", "locked": true, "points": 10, "schema_version": 3, "solution": false, "task": true}
 # \#### Please do not change this. This cell is used for grading.
 
-# %%
+# %% jupyter={"outputs_hidden": true} tags=[]
 # Change this to test your code!
 pointwise_test_params = Namespace(epochs=2, lr=1e-3, batch_size=256, metrics={"ndcg"})
 # uncomment to test your code
