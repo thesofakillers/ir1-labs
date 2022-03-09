@@ -71,6 +71,10 @@ Please, also install jupytext with
 pip install jupytext
 ```
 
+Note that this information and more is also handled by
+[poetry](https://python-poetry.org/) in [pyproject.toml](pyproject.toml) and
+[poetry.lock](poetry.lock).
+
 ## Useful Notes
 
 ### Student IDs

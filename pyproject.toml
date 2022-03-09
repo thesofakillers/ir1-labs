@@ -1,0 +1,32 @@
+[tool.poetry]
+name = "ir1-labs"
+version = "0.1.0"
+description = ""
+authors = ["Your Name <you@example.com>"]
+
+[tool.poetry.dependencies]
+python = "3.6.5"
+gensim = "3.8.3"
+nltk = "3.4.5"
+numpy = "1.18.1"
+matplotlib = "3.1.2"
+requests = "2.22.0"
+tqdm = "4.42.0"
+ipywidgets = "7.5.1"
+torch = "1.8.0"
+pandas = "1.1.5"
+six = "1.14.0"
+
+[tool.poetry.dev-dependencies]
+jupytext = "^1.13.7"
+notebook = "^6.4.8"
+black = {version = "^22.1.0", optional = true}
+pylint = {version = "^2.12.2", optional = true}
+jupyterlab-code-formatter = {version = "^1.4.10", optional = true}
+jupyterlab = {version = "^3.2", optional = true}
+jupyter-contrib-nbextensions = {version = "^0.5.1", optional = true}
+# remember to run jupyter contrib nbextension install --sys-prefix after this
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
