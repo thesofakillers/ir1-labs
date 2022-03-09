@@ -23,28 +23,28 @@
 # - The notebook you submit has to have the student ids, separated by underscores (E.g., `12341234_12341234_12341234_hw1.ipynb`).
 # - This will be parsed by a regexp, **so please double check your filename**.
 # - Only one member of each group has to submit the file (**please do not compress the .ipynb file when you will submit it**) to canvas.
-# - **Make sure to check that your notebook runs before submission**. A quick way to do this is to restart the kernel and run all the cells.  
+# - **Make sure to check that your notebook runs before submission**. A quick way to do this is to restart the kernel and run all the cells.
 # - Do not change the number of arugments in the given functions.
-# - **Please do not delete/add new cells**. Removing cells **will** lead to grade deduction. 
+# - **Please do not delete/add new cells**. Removing cells **will** lead to grade deduction.
 # - Note, that you are not allowed to use Google Colab.
 #
 # **Learning Goals**:
 # - Offline LTR
-#   - Learn how to implement pointwise, pairwise and listwise algorithms for learning to rank 
+#   - Learn how to implement pointwise, pairwise and listwise algorithms for learning to rank
 #
 # ---
 # **Recommended Reading**:
 #   - Chris Burges, Tal Shaked, Erin Renshaw, Ari Lazier, Matt Deeds, Nicole Hamilton, and Greg Hullender. Learning to rank using gradient descent. InProceedings of the 22nd international conference on Machine learning, pages 89–96, 2005.
 #   - Christopher J Burges, Robert Ragno, and Quoc V Le. Learning to rank with nonsmooth cost functions. In Advances inneural information processing systems, pages 193–200, 2007
 #   - (Sections 1, 2 and 4) Christopher JC Burges. From ranknet to lambdarank to lambdamart: An overview. Learning, 11(23-581):81, 2010
-#   
 #
-# Additional Resources: 
+#
+# Additional Resources:
 # - This assignment requires knowledge of [PyTorch](https://pytorch.org/). If you are unfamiliar with PyTorch, you can go over [these series of tutorials](https://pytorch.org/tutorials/beginner/deep_learning_60min_blitz.html)
 #
-# In the previous assignment, you experimented with retrieval with different ranking functions and in addition, different document representations. 
+# In the previous assignment, you experimented with retrieval with different ranking functions and in addition, different document representations.
 #
-# This assignment deals directly with learning to rank (LTR). In offline LTR, You will learn how to implement methods from the three approaches associated with learning to rank: pointwise, pairwise and listwise. 
+# This assignment deals directly with learning to rank (LTR). In offline LTR, You will learn how to implement methods from the three approaches associated with learning to rank: pointwise, pairwise and listwise.
 #
 #
 # **Note:**
@@ -99,7 +99,7 @@ import evaluate
 # # Chapter 1: Offline LTR <a class="anchor" id="o_LTR"></a>
 
 # %% [markdown] deletable=false editable=false nbgrader={"cell_type": "markdown", "checksum": "83d5c5098ff7e903a1d4475f78d028be", "grade": false, "grade_id": "cell-9978e0796016b961", "locked": true, "schema_version": 3, "solution": false, "task": false}
-# A typical setup of learning to rank involves a feature vector constructed using a query-document pair, and a set of relevance judgements. You are given a set of triples (`query`, `document`, `relevance grade`); where relevance grade is an *ordinal* variable  with  5  grades,  for example: {`perfect`,`excellent`,`good`,`fair`,`bad`),  typically  labeled  by human annotators.  
+# A typical setup of learning to rank involves a feature vector constructed using a query-document pair, and a set of relevance judgements. You are given a set of triples (`query`, `document`, `relevance grade`); where relevance grade is an *ordinal* variable  with  5  grades,  for example: {`perfect`,`excellent`,`good`,`fair`,`bad`),  typically  labeled  by human annotators.
 #
 # In this assignment, you are already given the feature vector for a given document and query pair. To access these vectors, see the following code cells (note: the dataset will be automatically downloaded & the first time the next cell runs, it will take a while!)
 
@@ -122,7 +122,7 @@ import evaluate
 # %% deletable=false editable=false nbgrader={"cell_type": "code", "checksum": "e11c95b755f0b252276313365c6ff290", "grade": false, "grade_id": "cell-d4779843ecb42649", "locked": true, "schema_version": 3, "solution": false, "task": false}
 dataset.download_dataset()
 data = dataset.get_dataset()
-# there is only 1 fold for this dataset 
+# there is only 1 fold for this dataset
 data = data.get_data_folds()[0]
 # read in the data
 data.read_data()
@@ -140,7 +140,7 @@ for split in ["train", "validation", "test"]:
 # %% [markdown] deletable=false editable=false nbgrader={"cell_type": "markdown", "checksum": "70b764af87765e64827eb896b0ad8643", "grade": false, "grade_id": "cell-5b034476f52f28bb", "locked": true, "schema_version": 3, "solution": false, "task": false}
 # ### Section 1.2 Utility classes/methods
 #
-# The following cells contain code that will be useful for the assigment. 
+# The following cells contain code that will be useful for the assigment.
 
 # %% deletable=false editable=false nbgrader={"cell_type": "code", "checksum": "cb52800727e7a5fe81c92706c34e6471", "grade": false, "grade_id": "cell-4ad2f0d8e4f66d37", "locked": true, "schema_version": 3, "solution": false, "task": false}
 # these is a useful class to create torch DataLoaders, and can be used during training
@@ -149,13 +149,13 @@ class LTRData(Dataset):
         split = {
             "train": data.train,
             "validation": data.validation,
-            "test": data.test
+            "test": data.test,
         }.get(split)
         assert split is not None, "Invalid split!"
         features, labels = split.feature_matrix, split.label_vector
         self.features = torch.FloatTensor(features)
         self.labels = torch.FloatTensor(labels)
-    
+
     def __len__(self):
         return self.features.size(0)
 
@@ -164,9 +164,9 @@ class LTRData(Dataset):
 
 
 # %% deletable=false editable=false nbgrader={"cell_type": "code", "checksum": "61170cd9d5a02b3f9e23364bf7d46c95", "grade": false, "grade_id": "cell-6be5d30fd0264dc3", "locked": true, "schema_version": 3, "solution": false, "task": false}
-## example 
+## example
 train_dl = DataLoader(LTRData(data, "train"), batch_size=32, shuffle=True)
-# this is how you would use it to quickly iterate over the train/val/test sets 
+# this is how you would use it to quickly iterate over the train/val/test sets
 # - (of course, without the break statement!)
 for (x, y) in train_dl:
     print(x.size(), y.size())
@@ -182,31 +182,35 @@ def evaluate_model(pred_fn, split, batch_size=256, print_results=False, q_level=
     dl = DataLoader(LTRData(data, split), batch_size=batch_size)
     all_scores = []
     all_labels = []
-    for (x, y) in tqdm(dl, desc=f'Eval ({split})', leave=False):
+    for (x, y) in tqdm(dl, desc=f"Eval ({split})", leave=False):
         all_labels.append(y.squeeze().numpy())
-        
+
         with torch.no_grad():
             output = pred_fn(x)
             all_scores.append(output.squeeze().numpy())
-            
-    split = {
-            "train": data.train,
-            "validation": data.validation,
-            "test": data.test
-    }.get(split)   
-    results = evaluate.evaluate2(np.asarray(all_scores), np.asarray(all_labels), print_results=print_results, q_level=q_level)
+
+    split = {"train": data.train, "validation": data.validation, "test": data.test}.get(
+        split
+    )
+    results = evaluate.evaluate2(
+        np.asarray(all_scores),
+        np.asarray(all_labels),
+        print_results=print_results,
+        q_level=q_level,
+    )
 
     return results
 
 
-
 # %% deletable=false editable=false nbgrader={"cell_type": "code", "checksum": "c605f95e2cd732774f1813a69bb8c3fc", "grade": false, "grade_id": "cell-66bc9b1a832d14d0", "locked": true, "schema_version": 3, "solution": false, "task": false}
-## example 
+## example
 # function that scores a given feature vector e.g a network
 net = nn.Linear(501, 1)
-# the evaluate method accepts a function. more specifically, a callable (such as pytorch modules) 
+# the evaluate method accepts a function. more specifically, a callable (such as pytorch modules)
 def notwork(x):
     return net(x)
+
+
 # evaluate the function
 _ = evaluate_model(notwork, "validation", print_results=True)
 
@@ -218,12 +222,12 @@ _ = evaluate_model(notwork, "validation", print_results=True)
 # use to get reproducible results
 def seed(random_seed):
     import random
+
     torch.manual_seed(random_seed)
     torch.backends.cudnn.deterministic = True
     torch.backends.cudnn.benchmark = False
     np.random.seed(random_seed)
     random.seed(random_seed)
-    
 
 
 # %% [markdown] deletable=false editable=false nbgrader={"cell_type": "markdown", "checksum": "a8f8a6074a4cc6d7039734100ec6aa40", "grade": false, "grade_id": "cell-a29483034efce729", "locked": true, "schema_version": 3, "solution": false, "task": false}
@@ -231,19 +235,19 @@ def seed(random_seed):
 #
 # [Back to TOC](#top)
 #
-# Let $x \in \mathbb{R}^d$ be an input feature vector, containing features for a query-document pair. Let $f: \mathbb{R}^d \rightarrow \mathbb{R} $ be a function that maps this feature vector to a number $f(x)$ - either a relevance score (regression) or label (classification). The data $\{x \}$ are treated as feature vectors and the relevance judgements are treated as the target which we want to predict. 
+# Let $x \in \mathbb{R}^d$ be an input feature vector, containing features for a query-document pair. Let $f: \mathbb{R}^d \rightarrow \mathbb{R} $ be a function that maps this feature vector to a number $f(x)$ - either a relevance score (regression) or label (classification). The data $\{x \}$ are treated as feature vectors and the relevance judgements are treated as the target which we want to predict.
 #
-# In this section, you will implement a simple Pointwise model using either a regression loss, and use the train set to train this model to predict the relevance score. 
+# In this section, you will implement a simple Pointwise model using either a regression loss, and use the train set to train this model to predict the relevance score.
 #
 
 # %% [markdown] deletable=false editable=false nbgrader={"cell_type": "markdown", "checksum": "3e847a4eb240f2b55c728c25bb5893d0", "grade": false, "grade_id": "cell-fdcb0b1bd78f6eda", "locked": true, "schema_version": 3, "solution": false, "task": false}
 # ### Section 2.1: Neural Model (25 points)
 #
-# In the following cell, you will implement a simple pointwise LTR model: 
-# - Use a neural network to learn a model with different loss functions, using the relevance grades as the label. Use the following parameters: 
+# In the following cell, you will implement a simple pointwise LTR model:
+# - Use a neural network to learn a model with different loss functions, using the relevance grades as the label. Use the following parameters:
 #   - Layers: $501 (input) \rightarrow 256 \rightarrow 1$ where each layer is a linear layer (`nn.Linear`) with a ReLu activation function (`nn.ReLU`) in between the layers. Use the default weight initialization scheme. (Hint: use `nn.Sequential` for a one-line forward function!)
-#   - This network will also be used by other methods i.e Pairwise 
-#   
+#   - This network will also be used by other methods i.e Pairwise
+#
 # You should implement the following three methods:
 # - `__init__` (4 points)
 # - `forward` (1 point)
@@ -260,21 +264,17 @@ class NeuralModule(nn.Module):
         # YOUR CODE HERE
         super().__init__()
         self.model = nn.Sequential(
-          nn.Linear(501, 256),
-          nn.ReLU(),
-          nn.Linear(256, 1),
-          nn.ReLU()
+            nn.Linear(501, 256), nn.ReLU(), nn.Linear(256, 1), nn.ReLU()
         )
-    
+
     def forward(self, x):
         """
-        Takes in an input feature matrix of size (N, 501) and produces the output 
+        Takes in an input feature matrix of size (N, 501) and produces the output
         Input: x: a [N, 501] tensor
         Output: a [N, 1] tensor
         """
         # YOUR CODE HERE
         return self.model(x)
-        
 
 
 # %% deletable=false editable=false nbgrader={"cell_type": "code", "checksum": "87b8f1732f3e0eab6becc6864a3f7ea9", "grade": false, "grade_id": "cell-917f63ec6b575f59", "locked": true, "schema_version": 3, "solution": false, "task": false}
@@ -288,13 +288,13 @@ n = 10
 inp = torch.rand(n, data.num_features)
 out = point_nn_reg(inp)
 
-
 # %% [markdown] deletable=false editable=false nbgrader={"cell_type": "markdown", "checksum": "e5ccb29e5d0401fa0500e1307a85a940", "grade": false, "grade_id": "cell-14f7b9a855dd8eee", "locked": true, "schema_version": 3, "solution": false, "task": false}
 # **Implementation (20 points):**
 # Implement `train_batch` function to compute the gradients (`backward()` function) and update the weights (`step()` function), using the specified loss function.
 
 # %% deletable=false nbgrader={"cell_type": "code", "checksum": "03134abc25d87ecff54f95f5f88c882a", "grade": false, "grade_id": "cell-a63dbf1642791205", "locked": false, "schema_version": 3, "solution": true, "task": false}
 # TODO: Implement this! (20 points)
+
 
 def train_batch(net, x, y, loss_fn, optimizer):
     """
@@ -306,9 +306,9 @@ def train_batch(net, x, y, loss_fn, optimizer):
             optimizer: an optimizer for computing the gradients (we use Adam)
     """
     # YOUR CODE HERE
-    optimizer.zero_grad()       # Sets the gradients of all parameters to zero
-    preds = net(x)              # Foward pass
-    loss = loss_fn(preds, y)    # Compute loss
+    optimizer.zero_grad()  # Sets the gradients of all parameters to zero
+    preds = net(x)  # Foward pass
+    loss = loss_fn(preds, y)  # Compute loss
     loss.backward()
     optimizer.step()
 
@@ -333,28 +333,29 @@ def train_batch(net, x, y, loss_fn, optimizer):
 # TODO: Implement this! (5 points)
 def pointwise_loss(output, target):
     """
-    Regression loss - returns a single number. 
+    Regression loss - returns a single number.
     Make sure to use the MSE loss
-    output: (float) tensor, shape - [N, 1] 
-    target: (float) tensor, shape - [N]. 
+    output: (float) tensor, shape - [N, 1]
+    target: (float) tensor, shape - [N].
     """
     assert target.dim() == 1
     assert output.size(0) == target.size(0)
     assert output.size(1) == 1
-    
-    # YOUR CODE HERE
-    return torch.square(torch.subtract(target,output.T)).mean()
 
+    # YOUR CODE HERE
+    return torch.square(torch.subtract(target, output.T)).mean()
 
 
 # %% deletable=false editable=false nbgrader={"cell_type": "code", "checksum": "9d001246d839d21e79a1d7d6137f0c9b", "grade": true, "grade_id": "cell-24edd9d567aac9da", "locked": true, "points": 5, "schema_version": 3, "solution": false, "task": false}
 ## Test pointwise_loss
 g = torch.manual_seed(42)
-output = [torch.randint(low=0, high=5, size=(5, 1), generator=g).float() for _ in range(5)]
+output = [
+    torch.randint(low=0, high=5, size=(5, 1), generator=g).float() for _ in range(5)
+]
 target = torch.randint(low=0, high=5, size=(5,), generator=g).float()
 
 l = [pointwise_loss(o, target).item() for o in output]
-print(f'your results:{l}')
+print(f"your results:{l}")
 
 
 # %% [markdown] deletable=false editable=false nbgrader={"cell_type": "markdown", "checksum": "a6080c5e4ef75acd46b4c272e9b4638a", "grade": false, "grade_id": "cell-0977a61ec0cfa7ed", "locked": true, "schema_version": 3, "solution": false, "task": false}
@@ -370,72 +371,77 @@ print(f'your results:{l}')
 # TODO: Implement this! (25 points)
 def train_pointwise(net, params):
     """
-    This function should train a Pointwise network. 
-    
+    This function should train a Pointwise network.
+
     The network is trained using the Adam optimizer
-        
-    
-    Note: Do not change the function definition! 
-    
-    
+
+
+    Note: Do not change the function definition!
+
+
     Hints:
     1. Use the LTRData class defined above
     2. Do not forget to use net.train() and net.eval()
-    
+
     Inputs:
             net: the neural network to be trained
 
-            params: params is an object which contains config used in training 
-                (eg. params.epochs - the number of epochs to train). 
-                For a full list of these params, see the next cell. 
-    
-    Returns: a dictionary containing: "metrics_val" (a list of dictionaries) and 
-             "metrics_train" (a list of dictionaries). 
-             
+            params: params is an object which contains config used in training
+                (eg. params.epochs - the number of epochs to train).
+                For a full list of these params, see the next cell.
+
+    Returns: a dictionary containing: "metrics_val" (a list of dictionaries) and
+             "metrics_train" (a list of dictionaries).
+
              "metrics_val" should contain metrics (the metrics in params.metrics) computed
-             after each epoch on the validation set (metrics_train is similar). 
+             after each epoch on the validation set (metrics_train is similar).
              You can use this to debug your models.
-    
+
     """
-    
-    
+
     val_metrics_epoch = []
     train_metrics_epoch = []
     optimizer = Adam(net.parameters(), lr=params.lr)
     loss_fn = pointwise_loss
-    
-    # YOUR CODE 
+
+    # YOUR CODE
     # I guess this is not strictly needed given the network, but it's still good practice
-    device = torch.device("cpu") if not torch.cuda.is_available() else torch.device("cuda:0") 
-    
-    train_data = DataLoader(LTRData(data, "train"), batch_size=params.batch_size, shuffle=True)
-    
+    device = (
+        torch.device("cpu") if not torch.cuda.is_available() else torch.device("cuda:0")
+    )
+
+    train_data = DataLoader(
+        LTRData(data, "train"), batch_size=params.batch_size, shuffle=True
+    )
+
     for epoch in range(params.epochs):
         ###########
         #  Train  #
         ###########
         net.train()
         for x, y in tqdm(train_data, desc=f"Epoch {epoch+1}", leave=False):
-            x,y = x.to(device), y.to(device)
-            optimizer.zero_grad() 
+            x, y = x.to(device), y.to(device)
+            optimizer.zero_grad()
             preds = net(x)
             loss = loss_fn(preds, y)
             loss.backward()
             optimizer.step()
-        
+
             net.eval()
-            train_metrics_epoch.append(evaluate_model(net, "train", batch_size=params.batch_size))
+            train_metrics_epoch.append(
+                evaluate_model(net, "train", batch_size=params.batch_size)
+            )
 
         ##############
         # Validation #
         ##############
-        
-        val_metrics_epoch.append(evaluate_model(net, "validation", batch_size=params.batch_size))
-    
-    return {
-        "metrics_val": val_metrics_epoch,
-        "metrics_train": train_metrics_epoch
-    }
+
+        val_metrics_epoch.append(
+            evaluate_model(net, "validation", batch_size=params.batch_size)
+        )
+
+    return {"metrics_val": val_metrics_epoch, "metrics_train": train_metrics_epoch}
+
 
 # %% deletable=false editable=false nbgrader={"cell_type": "code", "checksum": "1ace1ae99f50589e2701fbe947d78625", "grade": true, "grade_id": "cell-67e0d50494a180b8", "locked": true, "points": 0, "schema_version": 3, "solution": false, "task": false}
 # Please do not change this. This cell is used for grading.
@@ -445,10 +451,7 @@ def train_pointwise(net, params):
 
 # %%
 # Change this to test your code!
-pointwise_test_params = Namespace(epochs=1, 
-                    lr=1e-3,
-                    batch_size=256,
-                   metrics={"ndcg"})
+pointwise_test_params = Namespace(epochs=1, lr=1e-3, batch_size=256, metrics={"ndcg"})
 # uncomment to test your code
 ## train a regression model
 # met_reg = train_pointwise(point_nn_reg, pointwise_test_params)
@@ -458,26 +461,24 @@ pointwise_test_params = Namespace(epochs=1,
 # The next cell is used to generate results:
 
 # %% deletable=false editable=false nbgrader={"cell_type": "code", "checksum": "ad5d639ccb08208a4ffc57ea42edb1fd", "grade": false, "grade_id": "cell-11e8cbc591a51256", "locked": true, "schema_version": 3, "solution": false, "task": false}
-
-    
 def create_results(net, train_fn, prediction_fn, *train_params):
-    
+
     print("Training Model")
     metrics = train_fn(net, *train_params)
     net.eval()
-    test_metrics, test_qq = evaluate_model(prediction_fn, "test", print_results=True, q_level=True)
-    
-    
+    test_metrics, test_qq = evaluate_model(
+        prediction_fn, "test", print_results=True, q_level=True
+    )
+
     test_q = {}
     for m in {"ndcg", "precision@05", "recall@05"}:
         test_q[m] = test_qq[m]
-    
-    
+
     return {
         "metrics": metrics,
         "test_metrics": test_metrics,
         "test_query_level_metrics": test_q,
-        }
+    }
 
 
 # %% [markdown] deletable=false editable=false nbgrader={"cell_type": "markdown", "checksum": "a825f505c64d9d5c527d5d3a9e4eae2b", "grade": false, "grade_id": "cell-16ed543545863f61", "locked": true, "schema_version": 3, "solution": false, "task": false}
@@ -485,16 +486,14 @@ def create_results(net, train_fn, prediction_fn, *train_params):
 
 # %% deletable=false editable=false nbgrader={"cell_type": "code", "checksum": "ce1dd700fee6297ed6a9ec0baec8fdaf", "grade": false, "grade_id": "cell-cb8314e4e579adac", "locked": true, "schema_version": 3, "solution": false, "task": false}
 seed(42)
-params_regr = Namespace(epochs=11, 
-                    lr=1e-3,
-                    batch_size=256,
-                    metrics={"ndcg", "precision@05", "recall@05"})
+params_regr = Namespace(
+    epochs=11, lr=1e-3, batch_size=256, metrics={"ndcg", "precision@05", "recall@05"}
+)
 
 pointwise_regression_model = NeuralModule()
-pw_regr = create_results(pointwise_regression_model, 
-                          train_pointwise, 
-                          pointwise_regression_model,
-                          params_regr)
+pw_regr = create_results(
+    pointwise_regression_model, train_pointwise, pointwise_regression_model, params_regr
+)
 
 # %% deletable=false editable=false nbgrader={"cell_type": "code", "checksum": "b9dbbc03e7aee66e44072b978c0ca308", "grade": true, "grade_id": "cell-780585f47729739e", "locked": true, "points": 15, "schema_version": 3, "solution": false, "task": false}
 assert "test_metrics" in pw_regr.keys()
@@ -510,11 +509,11 @@ assert "recall@05" in pw_regr["test_metrics"].keys()
 #
 # In this section,  you will learn and implement RankNet, a  pairwise learning to rank algorithm.
 #
-# For a given query, consider two documents $D_i$ and $D_j$ with two different ground truth relevance  labels,  with  feature  vectors $x_i$ and $x_j$ respectively.   The  RankNet  model,  just  like  the pointwise model, uses $f$ to predict scores i.e $s_i=f(x_i)$ and $s_j=f(x_j)$, but uses a different loss during  training. $D_i \triangleright D_j$ denotes  the  event  that $D_i$ should  be  ranked  higher  than $D_j$.   The  two outputs $s_i$ and $s_j$ are mapped to a learned probability that $D_i \triangleright D_j$: 
+# For a given query, consider two documents $D_i$ and $D_j$ with two different ground truth relevance  labels,  with  feature  vectors $x_i$ and $x_j$ respectively.   The  RankNet  model,  just  like  the pointwise model, uses $f$ to predict scores i.e $s_i=f(x_i)$ and $s_j=f(x_j)$, but uses a different loss during  training. $D_i \triangleright D_j$ denotes  the  event  that $D_i$ should  be  ranked  higher  than $D_j$.   The  two outputs $s_i$ and $s_j$ are mapped to a learned probability that $D_i \triangleright D_j$:
 #
 #
 # $$        P_{ij} = \frac{1}{1 + e^{-\sigma(s_i - s_j)}} $$
-#   
+#
 # where $\sigma$ is a parameter that determines the shape of the sigmoid. The loss of the RankNet model is the cross entropy cost function:
 #
 # $$        C = - \bar{P}_{ij} \log P_{ij} - (1-\bar{P}_{ij}) \log (1 - P_{ij}) $$
@@ -523,7 +522,7 @@ assert "recall@05" in pw_regr["test_metrics"].keys()
 #
 # $$        C = \frac{1}{2}(1- S_{ij})\sigma(s_i - s_j) + \log(1+ e^{-\sigma(s_i - s_j)}) $$
 #
-# Now, consider a single query for which $n$ documents have been returned. Let the output scores of the ranker be $s_j$ ; $j=\{1, \dots, n \}$, the model parameters be $w_k \in \mathbb{R}^W$, and let the set of pairs of document indices used for training be $\mathcal{P}$. Then, the total cost is $C_T = \sum_{i,j \in \mathcal{P}} C(s_i; s_j)$. 
+# Now, consider a single query for which $n$ documents have been returned. Let the output scores of the ranker be $s_j$ ; $j=\{1, \dots, n \}$, the model parameters be $w_k \in \mathbb{R}^W$, and let the set of pairs of document indices used for training be $\mathcal{P}$. Then, the total cost is $C_T = \sum_{i,j \in \mathcal{P}} C(s_i; s_j)$.
 #
 #
 #
@@ -539,10 +538,10 @@ class QueryGroupedLTRData(Dataset):
         self.split = {
             "train": data.train,
             "validation": data.validation,
-            "test": data.test
+            "test": data.test,
         }.get(split)
         assert self.split is not None, "Invalid split!"
-    
+
     def __len__(self):
         return self.split.num_queries()
 
@@ -551,10 +550,10 @@ class QueryGroupedLTRData(Dataset):
         labels = torch.FloatTensor(self.split.query_labels(q_i))
         return feature, labels
 
-    
+
 ## example
 train_data = QueryGroupedLTRData(data, "train")
-# this is how you would use it to quickly iterate over the train/val/test sets 
+# this is how you would use it to quickly iterate over the train/val/test sets
 
 q_i = 300
 features_i, labels_i = train_data[q_i]
@@ -577,23 +576,22 @@ print(f"Shape of labels for Query {q_i}: {labels_i.size()}")
 # TODO: Implement this! (35 points)
 def pairwise_loss(scores, labels):
     """
-    Compute and return the pairwise loss *for a single query*. To compute this, compute the loss for each 
+    Compute and return the pairwise loss *for a single query*. To compute this, compute the loss for each
     ordering in a query, and then return the mean. Use sigma=1.
-    
+
     For a query, consider all possible ways of comparing 2 document-query pairs.
-    
+
     Hint: See the next cell for an example which should make it clear how the inputs look like
-    
+
     scores: tensor of size [N, 1] (the output of a neural network), where N = length of <query, document> pairs
-    labels: tensor of size [N], contains the relevance labels 
-    
+    labels: tensor of size [N], contains the relevance labels
+
     """
     # if there's only one rating
     if labels.size(0) < 2:
         return None
     # YOUR CODE HERE
     raise NotImplementedError()
-    
 
 
 # %% deletable=false editable=false nbgrader={"cell_type": "code", "checksum": "1722f54756caeb5c4d1d9be3b96adc68", "grade": true, "grade_id": "cell-871c61e7e13ab9f7", "locked": true, "points": 0, "schema_version": 3, "solution": false, "task": false}
@@ -610,8 +608,12 @@ labels_1 = torch.FloatTensor([1, 2, 3, 0, 4])
 scores_2 = torch.FloatTensor([3.2, 1.7]).unsqueeze(1)
 labels_2 = torch.FloatTensor([3, 1])
 
-assert torch.allclose(pairwise_loss(scores_1, labels_1), torch.tensor(0.6869), atol=1e-03)
-assert torch.allclose(pairwise_loss(scores_2, labels_2), torch.tensor(0.2014), atol=1e-03)
+assert torch.allclose(
+    pairwise_loss(scores_1, labels_1), torch.tensor(0.6869), atol=1e-03
+)
+assert torch.allclose(
+    pairwise_loss(scores_2, labels_2), torch.tensor(0.2014), atol=1e-03
+)
 
 
 # %% [markdown] deletable=false editable=false nbgrader={"cell_type": "markdown", "checksum": "23d362a3b04b8cda03ed03e49cea4dec", "grade": false, "grade_id": "cell-3a95bb01f72fc76c", "locked": true, "schema_version": 3, "solution": false, "task": false}
@@ -619,7 +621,7 @@ assert torch.allclose(pairwise_loss(scores_2, labels_2), torch.tensor(0.2014), a
 #
 # [Back to TOC](#top)
 #
-# To speed up training of the previous model, we can consider a sped up version of the model, where instead of `.backward` on the loss, we use `torch.backward(lambda_i)`. 
+# To speed up training of the previous model, we can consider a sped up version of the model, where instead of `.backward` on the loss, we use `torch.backward(lambda_i)`.
 #
 # The derivative of the total cost $C_T$ with respect to the model parameters $w_k$ is:
 #
@@ -629,8 +631,8 @@ assert torch.allclose(pairwise_loss(scores_2, labels_2), torch.tensor(0.2014), a
 #
 # $$
 # \frac{\partial C_T}{\partial w_k} = \sum_{i \in \mathcal{D}}
-# \frac{\partial s_i}{\partial w_k} \sum_{j \in \mathcal{P}_i} 
-# \frac{\partial C(s_i, s_j)}{\partial s_i} 
+# \frac{\partial s_i}{\partial w_k} \sum_{j \in \mathcal{P}_i}
+# \frac{\partial C(s_i, s_j)}{\partial s_i}
 # $$
 #
 # This sped of version of the algorithm first computes scores $s_i$ for all the documents. Then for each $j= 1, \dots, n$, compute:
@@ -647,8 +649,8 @@ assert torch.allclose(pairwise_loss(scores_2, labels_2), torch.tensor(0.2014), a
 # \frac{\partial s_i}{\partial w_k} \lambda_i
 # $$
 #
-# This can be directly optimized in pytorch using: `torch.autograd.backward(scores, lambda_i)` 
-#  
+# This can be directly optimized in pytorch using: `torch.autograd.backward(scores, lambda_i)`
+#
 #
 
 # %% [markdown] deletable=false editable=false nbgrader={"cell_type": "markdown", "checksum": "5ec1d836f9d76242124d99965f894eb4", "grade": false, "grade_id": "cell-2a9b7b682a011642", "locked": true, "schema_version": 3, "solution": false, "task": false}
@@ -665,13 +667,13 @@ assert torch.allclose(pairwise_loss(scores_2, labels_2), torch.tensor(0.2014), a
 def compute_lambda_i(scores, labels):
     """
     Compute \lambda_i (defined in the previous cell). (assume sigma=1.)
-    
+
     scores: tensor of size [N, 1] (the output of a neural network), where N = length of <query, document> pairs
-    labels: tensor of size [N], contains the relevance labels 
-    
+    labels: tensor of size [N], contains the relevance labels
+
     return: \lambda_i, a tensor of shape: [N, 1]
     """
-    
+
     # YOUR CODE HERE
     raise NotImplementedError()
 
@@ -684,19 +686,27 @@ def compute_lambda_i(scores, labels):
 
 # %% deletable=false editable=false nbgrader={"cell_type": "code", "checksum": "a0797f2fb2751342db97e554ef2c3fe5", "grade": true, "grade_id": "cell-e7a6c3f6f5b8573d", "locked": true, "points": 20, "schema_version": 3, "solution": false, "task": false}
 def mean_lambda(scores, labels):
-    return torch.stack([compute_lambda_i(scores, labels).mean(), torch.square(compute_lambda_i(scores, labels)).mean()])
+    return torch.stack(
+        [
+            compute_lambda_i(scores, labels).mean(),
+            torch.square(compute_lambda_i(scores, labels)).mean(),
+        ]
+    )
+
 
 scores_1 = torch.FloatTensor([10.2, 0.3, 4.5, 2.0, -1.0]).unsqueeze(1)
 labels_1 = torch.FloatTensor([1, 2, 3, 0, 4])
 
-assert torch.allclose(mean_lambda(scores_1, labels_1), torch.tensor([0,5.5072]), atol=1e-03)
+assert torch.allclose(
+    mean_lambda(scores_1, labels_1), torch.tensor([0, 5.5072]), atol=1e-03
+)
 
 scores_2 = torch.FloatTensor([3.2, 1.7]).unsqueeze(1)
 labels_2 = torch.FloatTensor([3, 1])
 
-assert torch.allclose(mean_lambda(scores_2, labels_2), torch.tensor([0,3.3279e-02]), atol=1e-03)
-
-
+assert torch.allclose(
+    mean_lambda(scores_2, labels_2), torch.tensor([0, 3.3279e-02]), atol=1e-03
+)
 
 # %% [markdown] deletable=false editable=false nbgrader={"cell_type": "markdown", "checksum": "c7ecdfc191b5d5ac73f59cfe7a646e28", "grade": false, "grade_id": "cell-302ff24228d5d645", "locked": true, "schema_version": 3, "solution": false, "task": false}
 # **Implementation (15 points):**
@@ -704,6 +714,7 @@ assert torch.allclose(mean_lambda(scores_2, labels_2), torch.tensor([0,3.3279e-0
 
 # %% deletable=false nbgrader={"cell_type": "code", "checksum": "b8a2e3b575081f0f4f8ca06427ae7617", "grade": false, "grade_id": "cell-75947ae654af28dd", "locked": false, "schema_version": 3, "solution": true, "task": false}
 # TODO: Implement this! (15 points)
+
 
 def train_batch_vector(net, x, y, loss_fn, optimizer):
     """
@@ -717,7 +728,6 @@ def train_batch_vector(net, x, y, loss_fn, optimizer):
     """
     # YOUR CODE HERE
     raise NotImplementedError()
-
 
 
 # %% deletable=false editable=false nbgrader={"cell_type": "code", "checksum": "fb1cc3bce4c3ae4f8387635e3f026702", "grade": true, "grade_id": "cell-fd6b806296de66c8", "locked": true, "points": 0, "schema_version": 3, "solution": false, "task": false}
@@ -744,23 +754,23 @@ def train_batch_vector(net, x, y, loss_fn, optimizer):
 #
 # **Rubric:**
 #  - Each ordering <i,j> combination is considered: 15 points
-#  - Computing $|\bigtriangleup NDCG|$: 15 points 
-#  - Proper application of the formula: 15 points 
+#  - Computing $|\bigtriangleup NDCG|$: 15 points
+#  - Proper application of the formula: 15 points
 #  - Loss values as expected: 15 points
 
 # %% deletable=false nbgrader={"cell_type": "code", "checksum": "a3d4214edbf49446840f54566aaad48b", "grade": false, "grade_id": "cell-48f6a2a1c4a529b6", "locked": false, "schema_version": 3, "solution": true, "task": false}
 # TODO: Implement this! (60 points)
 def listwise_loss(scores, labels):
-    
+
     """
     Compute the LambdaRank loss. (assume sigma=1.)
-    
+
     scores: tensor of size [N, 1] (the output of a neural network), where N = length of <query, document> pairs
-    labels: tensor of size [N], contains the relevance labels 
-    
+    labels: tensor of size [N], contains the relevance labels
+
     returns: a tensor of size [N, 1]
     """
-    
+
     # YOUR CODE HERE
     raise NotImplementedError()
 
@@ -775,18 +785,25 @@ raise NotImplementedError()
 
 # %% deletable=false editable=false nbgrader={"cell_type": "code", "checksum": "d3d6253e777229caed6615a93f55be07", "grade": true, "grade_id": "cell-59d3cccadbb8acae", "locked": true, "points": 15, "schema_version": 3, "solution": false, "task": false}
 def mean_lambda_list(scores, labels):
-    return torch.stack([listwise_loss(scores, labels).mean(), torch.square(listwise_loss(scores, labels)).mean()])
+    return torch.stack(
+        [
+            listwise_loss(scores, labels).mean(),
+            torch.square(listwise_loss(scores, labels)).mean(),
+        ]
+    )
 
 
 scores_1 = torch.FloatTensor([10.2, 0.3, 4.5, 2.0, -1.0]).unsqueeze(1)
 labels_1 = torch.FloatTensor([1, 2, 3, 0, 4])
-assert torch.allclose(mean_lambda_list(scores_1, labels_1), torch.tensor([0,0.1391]), atol=1e-03)
+assert torch.allclose(
+    mean_lambda_list(scores_1, labels_1), torch.tensor([0, 0.1391]), atol=1e-03
+)
 
 scores_2 = torch.FloatTensor([3.2, 1.7]).unsqueeze(1)
 labels_2 = torch.FloatTensor([3, 1])
-assert torch.allclose(mean_lambda_list(scores_2, labels_2), torch.tensor([0,2.8024e-03]), atol=1e-03)
-
-
+assert torch.allclose(
+    mean_lambda_list(scores_2, labels_2), torch.tensor([0, 2.8024e-03]), atol=1e-03
+)
 
 # %% [markdown] deletable=false editable=false nbgrader={"cell_type": "markdown", "checksum": "0273b490af6134ca8bab0168556888d2", "grade": false, "grade_id": "cell-e47b21d69c9be1e4", "locked": true, "schema_version": 3, "solution": false, "task": false}
 # ## Section 6: Comparing Pointwise, Pairwise and Listwise (55 points) <a class="anchor" id="evaluation1"></a>
@@ -799,9 +816,12 @@ assert torch.allclose(mean_lambda_list(scores_2, labels_2), torch.tensor([0,2.80
 # First, let's have a function that plots the average scores of relevant (levels 3 and 4) and non-relevant (levels 0, 1, and 2) scores in terms of training epochs for different loss functions:
 
 # %% deletable=false editable=false nbgrader={"cell_type": "code", "checksum": "2a359c3ed34cd7b583b75f1f8bf3291e", "grade": false, "grade_id": "cell-7e41216fae531bb9", "locked": true, "schema_version": 3, "solution": false, "task": false}
-loss_functions = {'pointwise':[pointwise_loss, train_batch],
-                 'pairwise':[compute_lambda_i, train_batch_vector],
-                 'listwise':[listwise_loss, train_batch_vector]}
+loss_functions = {
+    "pointwise": [pointwise_loss, train_batch],
+    "pairwise": [compute_lambda_i, train_batch_vector],
+    "listwise": [listwise_loss, train_batch_vector],
+}
+
 
 def plot_relevance_scores(batches, loss_function):
     seed(420)
@@ -809,54 +829,142 @@ def plot_relevance_scores(batches, loss_function):
     optimizer = Adam(net.parameters(), lr=0.005)
     loss_fn = loss_functions[loss_function][0]
     train_fn = loss_functions[loss_function][1]
-    
-    
-    train_batchs = batches[:len(batches)*3//4]
-    test_batchs = batches[len(batches)*3//4:]
-    
+
+    train_batchs = batches[: len(batches) * 3 // 4]
+    test_batchs = batches[len(batches) * 3 // 4 :]
+
     rel, nrel = [], []
-    
+
     for i in range(100):
         r, n = [], []
         for x, y in test_batchs:
-            binary_rel = np.round(y/4,0)
-            scores = net(x)[:,0]
-            r.append(torch.sum(scores * binary_rel).detach().numpy() / torch.sum(binary_rel).detach().numpy())
-            n.append(torch.sum(scores * (1. - binary_rel)).detach().numpy() / torch.sum((1. - binary_rel)).detach().numpy())
-            
+            binary_rel = np.round(y / 4, 0)
+            scores = net(x)[:, 0]
+            r.append(
+                torch.sum(scores * binary_rel).detach().numpy()
+                / torch.sum(binary_rel).detach().numpy()
+            )
+            n.append(
+                torch.sum(scores * (1.0 - binary_rel)).detach().numpy()
+                / torch.sum((1.0 - binary_rel)).detach().numpy()
+            )
+
         for x, y in train_batchs:
             train_fn(net, x, y, loss_fn, optimizer)
         rel.append(np.mean(np.array(r)))
         nrel.append(np.mean(np.array(n)))
-        
-    
-        
+
     plt.figure()
     plt.suptitle(loss_function)
-    plt.plot(np.arange(10,len(rel)), rel[10:], label='relevant')
-    plt.plot(np.arange(10,len(nrel)), nrel[10:], label='non-relevant')
+    plt.plot(np.arange(10, len(rel)), rel[10:], label="relevant")
+    plt.plot(np.arange(10, len(nrel)), nrel[10:], label="non-relevant")
     plt.legend()
-    
-        
+
 
 # %% [markdown] deletable=false editable=false nbgrader={"cell_type": "markdown", "checksum": "bfeb4378f07f6020bceaf8b891881ace", "grade": false, "grade_id": "cell-7d6e6335a3767b4c", "locked": true, "schema_version": 3, "solution": false, "task": false}
 # For efficiency issues, we select a small number (83) of queries to test different loss functions.
 # We split these queries into train and test with a 3:1 ratio.
 
 # %% deletable=false editable=false nbgrader={"cell_type": "code", "checksum": "5e4a6e95947a2bab07ea0e0ca08e7661", "grade": false, "grade_id": "cell-44deafb1053c2658", "locked": true, "schema_version": 3, "solution": false, "task": false}
-batches = [train_data[i] for i in [181, 209, 233, 242, 259, 273, 327, 333, 377, 393, 410, 434, 452, 503, 529, 573, 581, 597, 625, 658, 683, 724, 756, 757, 801, 825, 826, 828, 874, 902, 1581, 1588, 1636, 1691, 1712, 1755, 1813, 1983, 2001, 2018, 2021, 2024, 2029, 2065, 2095, 2100, 2171, 2172, 2174, 2252, 2274, 2286, 2288, 2293, 2297, 2353, 2362, 2364, 2365, 2368, 2400, 2403, 2433, 2434, 2453, 2472, 2529, 2534, 2539, 2543, 2555, 2576, 2600, 2608, 2636, 2641, 2653, 2692, 2714, 2717, 2718, 2723, 2724]]
+batches = [
+    train_data[i]
+    for i in [
+        181,
+        209,
+        233,
+        242,
+        259,
+        273,
+        327,
+        333,
+        377,
+        393,
+        410,
+        434,
+        452,
+        503,
+        529,
+        573,
+        581,
+        597,
+        625,
+        658,
+        683,
+        724,
+        756,
+        757,
+        801,
+        825,
+        826,
+        828,
+        874,
+        902,
+        1581,
+        1588,
+        1636,
+        1691,
+        1712,
+        1755,
+        1813,
+        1983,
+        2001,
+        2018,
+        2021,
+        2024,
+        2029,
+        2065,
+        2095,
+        2100,
+        2171,
+        2172,
+        2174,
+        2252,
+        2274,
+        2286,
+        2288,
+        2293,
+        2297,
+        2353,
+        2362,
+        2364,
+        2365,
+        2368,
+        2400,
+        2403,
+        2433,
+        2434,
+        2453,
+        2472,
+        2529,
+        2534,
+        2539,
+        2543,
+        2555,
+        2576,
+        2600,
+        2608,
+        2636,
+        2641,
+        2653,
+        2692,
+        2714,
+        2717,
+        2718,
+        2723,
+        2724,
+    ]
+]
 
 # %% [markdown] deletable=false editable=false nbgrader={"cell_type": "markdown", "checksum": "835961600ac51c129d40628e553de615", "grade": false, "grade_id": "cell-7ff6e848c9bd73e3", "locked": true, "schema_version": 3, "solution": false, "task": false}
 # Next, we train a neural network with different loss functions on the selected queries.
 # During training, we save the average scores of relevant and non-relevant validation items for each training epoch and plot them as follows:
 
 # %% deletable=false editable=false nbgrader={"cell_type": "code", "checksum": "8cdc20081bdade27c899871b4cf412a4", "grade": false, "grade_id": "cell-7c9e67ee163968e5", "locked": true, "schema_version": 3, "solution": false, "task": false}
+plot_relevance_scores(batches, "pointwise")
 
-plot_relevance_scores(batches, 'pointwise')
+plot_relevance_scores(batches, "pairwise")
 
-plot_relevance_scores(batches, 'pairwise')
-
-plot_relevance_scores(batches, 'listwise')
+plot_relevance_scores(batches, "listwise")
 
 # %% [markdown] deletable=false editable=false nbgrader={"cell_type": "markdown", "checksum": "203546af0372846259b98ba4ff01aee0", "grade": false, "grade_id": "cell-ab14e8eb74d2f32d", "locked": true, "schema_version": 3, "solution": false, "task": false}
 # **Implementation (15 points):**
@@ -874,21 +982,18 @@ def plot_ndcg10(batches, loss_function):
     optimizer = Adam(net.parameters(), lr=0.005)
     loss_fn = loss_functions[loss_function][0]
     train_fn = loss_functions[loss_function][1]
-        
-    train_batchs = batches[:len(batches)*3//4]
-    test_batchs = batches[len(batches)*3//4:]
-    
+
+    train_batchs = batches[: len(batches) * 3 // 4]
+    test_batchs = batches[len(batches) * 3 // 4 :]
+
     ndcg = []
-    
+
     # YOUR CODE HERE
     raise NotImplementedError()
-    
-#     plt.figure()
+
+    #     plt.figure()
     plt.plot(np.arange(len(ndcg)), ndcg, label=loss_function)
     plt.legend()
-    
-        
-    
 
 
 # %% deletable=false editable=false nbgrader={"cell_type": "code", "checksum": "fdc37604e13a35206128ae02d3d98f72", "grade": true, "grade_id": "cell-3ea3f9d9502c57f0", "locked": true, "points": 0, "schema_version": 3, "solution": false, "task": false}
@@ -898,12 +1003,11 @@ def plot_ndcg10(batches, loss_function):
 # \#### Please do not change this. This cell is used for grading.
 
 # %%
+plot_ndcg10(batches, "pointwise")
 
-plot_ndcg10(batches, 'pointwise')
+plot_ndcg10(batches, "pairwise")
 
-plot_ndcg10(batches, 'pairwise')
-
-plot_ndcg10(batches, 'listwise')
+plot_ndcg10(batches, "listwise")
 
 # %% [markdown] deletable=false editable=false nbgrader={"cell_type": "markdown", "checksum": "02a930db82f1928549d31a62ff012c18", "grade": false, "grade_id": "cell-067c6d8584df601e", "locked": true, "schema_version": 3, "solution": false, "task": false}
 # Write a conclusion in the next cell, considering (40 points):

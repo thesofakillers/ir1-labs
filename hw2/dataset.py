@@ -1,4 +1,3 @@
-
 import os
 import gc
 import json
@@ -17,11 +16,13 @@ def _add_zero_to_vector(vector):
     return np.concatenate([np.zeros(1, dtype=vector.dtype), vector])
 
 
-def get_dataset(num_folds=1,
-                num_relevance_labels=5,
-                num_nonzero_feat=519,
-                num_unique_feat=501,
-                query_normalized=False):
+def get_dataset(
+    num_folds=1,
+    num_relevance_labels=5,
+    num_nonzero_feat=519,
+    num_unique_feat=501,
+    query_normalized=False,
+):
 
     fold_paths = [get_data_path()]
     return DataSet(
@@ -39,14 +40,16 @@ class DataSet(object):
     Class designed to manage meta-data for datasets.
     """
 
-    def __init__(self,
-                 name,
-                 data_paths,
-                 num_rel_labels,
-                 num_features,
-                 num_nonzero_feat,
-                 feature_normalization=True,
-                 purge_test_set=True):
+    def __init__(
+        self,
+        name,
+        data_paths,
+        num_rel_labels,
+        num_features,
+        num_nonzero_feat,
+        feature_normalization=True,
+        purge_test_set=True,
+    ):
         self.name = name
         self.num_rel_labels = num_rel_labels
         self.num_features = num_features
@@ -77,39 +80,39 @@ class DataFoldSplit(object):
 
     def query_range(self, query_index):
         s_i = self.doclist_ranges[query_index]
-        e_i = self.doclist_ranges[query_index+1]
+        e_i = self.doclist_ranges[query_index + 1]
         return s_i, e_i
 
     def query_size(self, query_index):
         s_i = self.doclist_ranges[query_index]
-        e_i = self.doclist_ranges[query_index+1]
+        e_i = self.doclist_ranges[query_index + 1]
         return e_i - s_i
 
     def query_sizes(self):
-        return (self.doclist_ranges[1:] - self.doclist_ranges[:-1])
+        return self.doclist_ranges[1:] - self.doclist_ranges[:-1]
 
     def query_labels(self, query_index):
         s_i = self.doclist_ranges[query_index]
-        e_i = self.doclist_ranges[query_index+1]
+        e_i = self.doclist_ranges[query_index + 1]
         return self.label_vector[s_i:e_i]
 
     def query_feat(self, query_index):
         s_i = self.doclist_ranges[query_index]
-        e_i = self.doclist_ranges[query_index+1]
+        e_i = self.doclist_ranges[query_index + 1]
         return self.feature_matrix[s_i:e_i, :]
 
     def doc_feat(self, query_index, doc_index):
         s_i = self.doclist_ranges[query_index]
-        e_i = self.doclist_ranges[query_index+1]
-        assert s_i + doc_index < self.doclist_ranges[query_index+1]
+        e_i = self.doclist_ranges[query_index + 1]
+        assert s_i + doc_index < self.doclist_ranges[query_index + 1]
         return self.feature_matrix[s_i + doc_index, :]
 
     def doc_str(self, query_index, doc_index):
         doc_feat = self.doc_feat(query_index, doc_index)
         feat_i = np.where(doc_feat)[0]
-        doc_str = ''
+        doc_str = ""
         for f_i in feat_i:
-            doc_str += '%f ' % (doc_feat[f_i])
+            doc_str += "%f " % (doc_feat[f_i])
         return doc_str
 
     def subsample_by_ids(self, qids):
@@ -128,17 +131,24 @@ class DataFoldSplit(object):
 
     def random_subsample(self, subsample_size):
         if subsample_size > self.num_queries():
-            return DataFoldSplit(self.datafold, self.name + '_*', self.doclist_ranges, self.feature_matrix, self.label_vector, self.data_raw_path)
+            return DataFoldSplit(
+                self.datafold,
+                self.name + "_*",
+                self.doclist_ranges,
+                self.feature_matrix,
+                self.label_vector,
+                self.data_raw_path,
+            )
         qids = np.random.randint(0, self.num_queries(), subsample_size)
 
-        doclist_ranges, feature_matrix, label_vector = self.subsample_by_ids(
-            qids)
+        doclist_ranges, feature_matrix, label_vector = self.subsample_by_ids(qids)
 
-        return DataFoldSplit(None, self.name + str(qids), doclist_ranges, feature_matrix, label_vector)
+        return DataFoldSplit(
+            None, self.name + str(qids), doclist_ranges, feature_matrix, label_vector
+        )
 
 
 class DataFold(object):
-
     def __init__(self, dataset, fold_num, data_path):
         self.name = dataset.name
         self.num_rel_labels = dataset.num_rel_labels
@@ -163,39 +173,41 @@ class DataFold(object):
         Reads data from a fold folder (letor format).
         """
 
-        pickle_name = 'ltr_data.npz'
+        pickle_name = "ltr_data.npz"
 
-        pickle_path = os.path.join(self.data_path,  pickle_name)
+        pickle_path = os.path.join(self.data_path, pickle_name)
 
         if os.path.isfile(pickle_path):
             loaded_data = np.load(pickle_path, allow_pickle=True)
-            if loaded_data['format_version'] == FOLDDATA_WRITE_VERSION:
-                train_feature_matrix = loaded_data['train_feature_matrix']
-                train_doclist_ranges = loaded_data['train_doclist_ranges']
-                train_label_vector = loaded_data['train_label_vector']
-                valid_feature_matrix = loaded_data['valid_feature_matrix']
-                valid_doclist_ranges = loaded_data['valid_doclist_ranges']
-                valid_label_vector = loaded_data['valid_label_vector']
-                test_feature_matrix = loaded_data['test_feature_matrix']
-                test_doclist_ranges = loaded_data['test_doclist_ranges']
-                test_label_vector = loaded_data['test_label_vector']
+            if loaded_data["format_version"] == FOLDDATA_WRITE_VERSION:
+                train_feature_matrix = loaded_data["train_feature_matrix"]
+                train_doclist_ranges = loaded_data["train_doclist_ranges"]
+                train_label_vector = loaded_data["train_label_vector"]
+                valid_feature_matrix = loaded_data["valid_feature_matrix"]
+                valid_doclist_ranges = loaded_data["valid_doclist_ranges"]
+                valid_label_vector = loaded_data["valid_label_vector"]
+                test_feature_matrix = loaded_data["test_feature_matrix"]
+                test_doclist_ranges = loaded_data["test_doclist_ranges"]
+                test_label_vector = loaded_data["test_label_vector"]
             del loaded_data
 
-        self.train = DataFoldSplit(self,
-                                   'train',
-                                   train_doclist_ranges,
-                                   train_feature_matrix,
-                                   train_label_vector)
-        self.validation = DataFoldSplit(self,
-                                        'validation',
-                                        valid_doclist_ranges,
-                                        valid_feature_matrix,
-                                        valid_label_vector)
-        self.test = DataFoldSplit(self,
-                                  'test',
-                                  test_doclist_ranges,
-                                  test_feature_matrix,
-                                  test_label_vector)
+        self.train = DataFoldSplit(
+            self,
+            "train",
+            train_doclist_ranges,
+            train_feature_matrix,
+            train_label_vector,
+        )
+        self.validation = DataFoldSplit(
+            self,
+            "validation",
+            valid_doclist_ranges,
+            valid_feature_matrix,
+            valid_label_vector,
+        )
+        self.test = DataFoldSplit(
+            self, "test", test_doclist_ranges, test_feature_matrix, test_label_vector
+        )
         self._data_ready = True
 
 
@@ -227,7 +239,7 @@ def download_dataset():
 
 def load_production_ranker():
     data_path = get_data_path()
-    with open(os.path.join(get_data_path(), "ranks.pkl"), 'rb') as f:
+    with open(os.path.join(get_data_path(), "ranks.pkl"), "rb") as f:
         ranks = pickle.load(f)
     return ranks
 
@@ -247,10 +259,14 @@ def clean_and_sort(ranks, data_fold_split, topk):
 
     for qid in range(data_fold_split.doclist_ranges.shape[0] - 1):
         irank = np.argsort(
-            ranks[data_fold_split.doclist_ranges[qid]:data_fold_split.doclist_ranges[qid+1]])
+            ranks[
+                data_fold_split.doclist_ranges[qid] : data_fold_split.doclist_ranges[
+                    qid + 1
+                ]
+            ]
+        )
         shown_len = min(irank.shape[0], topk)
-        argsorted.append(
-            data_fold_split.doclist_ranges[qid] + irank[:shown_len])
+        argsorted.append(data_fold_split.doclist_ranges[qid] + irank[:shown_len])
         new_doclist_range.append(shown_len)
 
     _argsorted = np.concatenate(argsorted, axis=0)
