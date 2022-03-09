@@ -240,7 +240,7 @@ def seed(random_seed):
 # In this section, you will implement a simple Pointwise model using either a regression loss, and use the train set to train this model to predict the relevance score.
 #
 
-# %% [markdown] deletable=false editable=false nbgrader={"cell_type": "markdown", "checksum": "3e847a4eb240f2b55c728c25bb5893d0", "grade": false, "grade_id": "cell-fdcb0b1bd78f6eda", "locked": true, "schema_version": 3, "solution": false, "task": false}
+# %% [markdown] deletable=false editable=false nbgrader={"cell_type": "markdown", "checksum": "3e847a4eb240f2b55c728c25bb5893d0", "grade": false, "grade_id": "cell-fdcb0b1bd78f6eda", "locked": true, "schema_version": 3, "solution": false, "task": false} hide_input=true
 # ### Section 2.1: Neural Model (25 points)
 #
 # In the following cell, you will implement a simple pointwise LTR model:
@@ -254,7 +254,7 @@ def seed(random_seed):
 #
 #
 
-# %% deletable=false nbgrader={"cell_type": "code", "checksum": "859df25d2a15cbf8168cd2955e31f3e7", "grade": false, "grade_id": "cell-e6ebad1d98f78bf0", "locked": false, "schema_version": 3, "solution": true, "task": false}
+# %% deletable=false nbgrader={"cell_type": "code", "checksum": "859df25d2a15cbf8168cd2955e31f3e7", "grade": false, "grade_id": "cell-e6ebad1d98f78bf0", "locked": false, "schema_version": 3, "solution": true, "task": false} hide_input=false
 # TODO: Implement this! (5 points)
 class NeuralModule(nn.Module):
     def __init__(self):
@@ -263,9 +263,7 @@ class NeuralModule(nn.Module):
         """
         # YOUR CODE HERE
         super().__init__()
-        self.model = nn.Sequential(
-            nn.Linear(501, 256), nn.ReLU(), nn.Linear(256, 1), nn.ReLU()
-        )
+        self.model = nn.Sequential(nn.Linear(501, 256), nn.ReLU(), nn.Linear(256, 1))
 
     def forward(self, x):
         """
@@ -405,11 +403,9 @@ def train_pointwise(net, params):
     loss_fn = pointwise_loss
 
     # YOUR CODE
-    # I guess this is not strictly needed given the network, but it's still good practice
     device = (
         torch.device("cpu") if not torch.cuda.is_available() else torch.device("cuda:0")
     )
-
     train_data = DataLoader(
         LTRData(data, "train"), batch_size=params.batch_size, shuffle=True
     )
@@ -421,24 +417,17 @@ def train_pointwise(net, params):
         net.train()
         for x, y in tqdm(train_data, desc=f"Epoch {epoch+1}", leave=False):
             x, y = x.to(device), y.to(device)
-            optimizer.zero_grad()
-            preds = net(x)
-            loss = loss_fn(preds, y)
-            loss.backward()
-            optimizer.step()
-
-            net.eval()
-            train_metrics_epoch.append(
-                evaluate_model(net, "train", batch_size=params.batch_size)
-            )
-
+            train_batch(net, x, y, loss_fn, optimizer)
+        train_eval = evaluate_model(net, "train", batch_size=params.batch_size)
+        train_eval = {key: train_eval[key] for key in params.metrics}  # filtering
+        train_metrics_epoch.append(train_eval)
         ##############
         # Validation #
         ##############
-
-        val_metrics_epoch.append(
-            evaluate_model(net, "validation", batch_size=params.batch_size)
-        )
+        net.eval()
+        val_eval = evaluate_model(net, "validation", batch_size=params.batch_size)
+        val_eval = {key: val_eval[key] for key in params.metrics}  # filtering
+        val_metrics_epoch.append(val_eval)
 
     return {"metrics_val": val_metrics_epoch, "metrics_train": train_metrics_epoch}
 
@@ -451,11 +440,10 @@ def train_pointwise(net, params):
 
 # %%
 # Change this to test your code!
-pointwise_test_params = Namespace(epochs=1, lr=1e-3, batch_size=256, metrics={"ndcg"})
+pointwise_test_params = Namespace(epochs=2, lr=1e-3, batch_size=256, metrics={"ndcg"})
 # uncomment to test your code
-## train a regression model
+# # train a regression model
 # met_reg = train_pointwise(point_nn_reg, pointwise_test_params)
-
 
 # %% [markdown] deletable=false editable=false nbgrader={"cell_type": "markdown", "checksum": "356891eb36658a43dccd890af8d5ecde", "grade": false, "grade_id": "cell-27ec0e0dd8a5d98d", "locked": true, "schema_version": 3, "solution": false, "task": false}
 # The next cell is used to generate results:
@@ -484,7 +472,7 @@ def create_results(net, train_fn, prediction_fn, *train_params):
 # %% [markdown] deletable=false editable=false nbgrader={"cell_type": "markdown", "checksum": "a825f505c64d9d5c527d5d3a9e4eae2b", "grade": false, "grade_id": "cell-16ed543545863f61", "locked": true, "schema_version": 3, "solution": false, "task": false}
 # Now use the above functions to generate your results:
 
-# %% deletable=false editable=false nbgrader={"cell_type": "code", "checksum": "ce1dd700fee6297ed6a9ec0baec8fdaf", "grade": false, "grade_id": "cell-cb8314e4e579adac", "locked": true, "schema_version": 3, "solution": false, "task": false}
+# %% deletable=false editable=false nbgrader={"cell_type": "code", "checksum": "ce1dd700fee6297ed6a9ec0baec8fdaf", "grade": false, "grade_id": "cell-cb8314e4e579adac", "locked": true, "schema_version": 3, "solution": false, "task": false} jupyter={"outputs_hidden": true} tags=[]
 seed(42)
 params_regr = Namespace(
     epochs=11, lr=1e-3, batch_size=256, metrics={"ndcg", "precision@05", "recall@05"}
