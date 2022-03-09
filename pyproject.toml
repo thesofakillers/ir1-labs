@@ -26,6 +26,7 @@ jupyterlab-code-formatter = {version = "^1.4.10", optional = true}
 jupyterlab = {version = "^3.2", optional = true}
 jupyter-contrib-nbextensions = {version = "^0.5.1", optional = true}
 # remember to run jupyter contrib nbextension install --sys-prefix after this
+nbdime = {version = "^3.1.1", optional = true}
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
