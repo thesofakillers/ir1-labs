@@ -440,7 +440,7 @@ def train_pointwise(net, params):
 # %% [markdown] deletable=false editable=false nbgrader={"cell_type": "markdown", "checksum": "c70bb634cfc30e73ff571f4bfcb6b9ae", "grade": false, "grade_id": "cell-1e47c28fe54e811c", "locked": true, "points": 10, "schema_version": 3, "solution": false, "task": true}
 # \#### Please do not change this. This cell is used for grading.
 
-# %% jupyter={"outputs_hidden": true} tags=[]
+# %% tags=[]
 # Change this to test your code!
 pointwise_test_params = Namespace(epochs=2, lr=1e-3, batch_size=256, metrics={"ndcg"})
 # uncomment to test your code
@@ -474,7 +474,7 @@ def create_results(net, train_fn, prediction_fn, *train_params):
 # %% [markdown] deletable=false editable=false nbgrader={"cell_type": "markdown", "checksum": "a825f505c64d9d5c527d5d3a9e4eae2b", "grade": false, "grade_id": "cell-16ed543545863f61", "locked": true, "schema_version": 3, "solution": false, "task": false}
 # Now use the above functions to generate your results:
 
-# %% deletable=false editable=false nbgrader={"cell_type": "code", "checksum": "ce1dd700fee6297ed6a9ec0baec8fdaf", "grade": false, "grade_id": "cell-cb8314e4e579adac", "locked": true, "schema_version": 3, "solution": false, "task": false} jupyter={"outputs_hidden": true} tags=[]
+# %% deletable=false editable=false nbgrader={"cell_type": "code", "checksum": "ce1dd700fee6297ed6a9ec0baec8fdaf", "grade": false, "grade_id": "cell-cb8314e4e579adac", "locked": true, "schema_version": 3, "solution": false, "task": false} tags=[]
 seed(42)
 params_regr = Namespace(
     epochs=11, lr=1e-3, batch_size=256, metrics={"ndcg", "precision@05", "recall@05"}
@@ -566,14 +566,15 @@ print(f"Shape of labels for Query {q_i}: {labels_i.size()}")
 # TODO: Implement this! (35 points)
 def pairwise_loss(scores, labels):
     """
-    Compute and return the pairwise loss *for a single query*. To compute this, compute the loss for each
-    ordering in a query, and then return the mean. Use sigma=1.
+    Compute and return the pairwise loss *for a single query*. To compute this,
+    compute the loss for each ordering in a query, and then return the mean. Use sigma=1.
 
     For a query, consider all possible ways of comparing 2 document-query pairs.
 
     Hint: See the next cell for an example which should make it clear how the inputs look like
 
-    scores: tensor of size [N, 1] (the output of a neural network), where N = length of <query, document> pairs
+    scores: tensor of size [N, 1] (the output of a neural network),
+        where N = length of <query, document> pairs
     labels: tensor of size [N], contains the relevance labels
 
     """
@@ -581,7 +582,27 @@ def pairwise_loss(scores, labels):
     if labels.size(0) < 2:
         return None
     # YOUR CODE HERE
-    raise NotImplementedError()
+    sigma = 1  # "Use sigma=1."
+    N = labels.size(0)
+    comb_idxs = np.array(list(itertools.combinations(range(N), 2))).T
+
+    scores = scores.squeeze()
+
+    scores_i = scores[comb_idxs[0]]
+    scores_j = scores[comb_idxs[1]]
+
+    labels_i = labels[comb_idxs[0]]
+    labels_j = labels[comb_idxs[1]]
+
+    scores_diff = scores_i - scores_j
+    labels_diff = labels_i - labels_j
+
+    S_ij = torch.sign(labels_diff)
+
+    loss = 0.5 * (1 - S_ij) * sigma * (scores_diff) + torch.log(
+        1 + torch.exp(-sigma * scores_diff)
+    )
+    return loss.mean()
 
 
 # %% deletable=false editable=false nbgrader={"cell_type": "code", "checksum": "1722f54756caeb5c4d1d9be3b96adc68", "grade": true, "grade_id": "cell-871c61e7e13ab9f7", "locked": true, "points": 0, "schema_version": 3, "solution": false, "task": false}
