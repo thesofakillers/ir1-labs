@@ -679,14 +679,40 @@ def compute_lambda_i(scores, labels):
     """
     Compute \lambda_i (defined in the previous cell). (assume sigma=1.)
 
-    scores: tensor of size [N, 1] (the output of a neural network), where N = length of <query, document> pairs
+    scores: tensor of size [N, 1] (the output of a neural network), 
+    where N = length of <query, document> pairs
     labels: tensor of size [N], contains the relevance labels
 
     return: \lambda_i, a tensor of shape: [N, 1]
     """
 
     # YOUR CODE HERE
-    raise NotImplementedError()
+    sigma = 1  # "Use sigma=1."
+    N = labels.size(0)
+    # for each score i, compute lambda_ij for each of j remaining scores 
+    comb_idxs = np.array(list(itertools.combinations(range(N), N-1)))[::-1]
+    # not sure if this is needed
+    scores = scores.squeeze()
+    # i want a N x N-1 array for each of these
+    scores_j = scores[comb_idxs]
+    labels_j = labels[comb_idxs]
+    # same here
+    scores_diff = scores - scores_j
+    labels_diff = labels - labels_j
+    # and here
+    S_ij = torch.sign(labels_diff)
+    # and here (operations should all be elementwise)
+    lambda_ij = sigma * (
+        0.5 * (1 - S_ij)
+        - 1 / (1 + torch.exp(sigma*scores_diff))
+    )
+    # then sum so that we get N x 1
+    lambda_i = lambda_ij.sum(axis=1)
+    
+    return lambda_i
+
+# this is me testing the itertools thing
+# np.array(["a","b", "c", "d", "e"])[np.array(list(itertools.combinations(range(5), r=4)))][::-1]
 
 
 # %% deletable=false editable=false nbgrader={"cell_type": "code", "checksum": "ed04934dc3243f5eacf750bb66bd400f", "grade": true, "grade_id": "cell-f0e04630af573b61", "locked": true, "points": 0, "schema_version": 3, "solution": false, "task": false}
