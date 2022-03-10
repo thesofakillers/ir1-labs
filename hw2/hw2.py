@@ -584,7 +584,7 @@ def pairwise_loss(scores, labels):
     # YOUR CODE HERE
     sigma = 1  # "Use sigma=1."
     N = labels.size(0)
-    comb_idxs = np.array(list(itertools.combinations(range(N), 2))).T
+    comb_idxs = np.array(list(itertools.permutations(range(N), 2))).T
 
     scores = scores.squeeze()
 
@@ -689,30 +689,29 @@ def compute_lambda_i(scores, labels):
     # YOUR CODE HERE
     sigma = 1  # "Use sigma=1."
     N = labels.size(0)
-    # for each score i, compute lambda_ij for each of j remaining scores 
-    comb_idxs = np.array(list(itertools.combinations(range(N), N-1)))[::-1]
-    # not sure if this is needed
-    scores = scores.squeeze()
-    # i want a N x N-1 array for each of these
-    scores_j = scores[comb_idxs]
-    labels_j = labels[comb_idxs]
-    # same here
-    scores_diff = scores - scores_j
-    labels_diff = labels - labels_j
-    # and here
-    S_ij = torch.sign(labels_diff)
-    # and here (operations should all be elementwise)
-    lambda_ij = sigma * (
-        0.5 * (1 - S_ij)
-        - 1 / (1 + torch.exp(sigma*scores_diff))
-    )
-    # then sum so that we get N x 1
-    lambda_i = lambda_ij.sum(axis=1)
+    # Generate all possible doc pairs (i,j)
     
-    return lambda_i
+    # Now we need to find all j=1..N such that (i,j) is a valid pair. For each valid combination we compute lambda_i,j
+    lambda_i = torch.zeros(N)
+    for i in range(N):
+        lambda_ij = torch.zeros(N-1)
+        for idx, j in enumerate([idx for idx in range(N) if idx!=i]): # j's such that pair (i,j) exists
+            
+            label_i = labels[i]
+            score_i = scores[i]
+            
+            label_j = labels[j]
+            score_j = scores[j]
+            
+            scores_diff = score_i - score_j
+            labels_diff = label_i - label_j
+            
+            S_ij = torch.sign(labels_diff)
+            lambda_ij[idx] = sigma * (0.5 * (1 - S_ij) - (1 / (1 + torch.exp(sigma * scores_diff))))
+            
+        lambda_i[i] = torch.sum(lambda_ij)
 
-# this is me testing the itertools thing
-# np.array(["a","b", "c", "d", "e"])[np.array(list(itertools.combinations(range(5), r=4)))][::-1]
+    return lambda_i
 
 
 # %% deletable=false editable=false nbgrader={"cell_type": "code", "checksum": "ed04934dc3243f5eacf750bb66bd400f", "grade": true, "grade_id": "cell-f0e04630af573b61", "locked": true, "points": 0, "schema_version": 3, "solution": false, "task": false}
@@ -755,7 +754,8 @@ assert torch.allclose(
 
 def train_batch_vector(net, x, y, loss_fn, optimizer):
     """
-    Takes as input a batch of size N, i.e. feature matrix of size (N, 501), label vector of size (N), the loss function and optimizer for computing the gradients, and updates the weights of the model.
+    Takes as input a batch of size N, i.e. feature matrix of size (N, 501), label vector of size (N), 
+    the loss function and optimizer for computing the gradients, and updates the weights of the model.
     The loss function returns a vector of size [N, 1], the same as the output of network.
 
     Input:  x: feature matrix, a [N, 501] tensor
