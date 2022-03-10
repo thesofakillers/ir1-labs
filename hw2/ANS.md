@@ -27,10 +27,26 @@ read the following papers.
 > that can address inherent bias in user interactions such as clicks.
 
 > 2a) 15.0p According to their experimental results, How successful is IPS in
-> addressing bias in click data? In the presence of high degrees of bias, how the
-> performance of their model could be improved?
+> addressing bias in click data? In the presence of high degrees of bias, how
+> could the performance of their model be improved?
 
-YOUR ANSWER HERE
+The authors empirically evaluate IPS in experiments using synthetic and
+real-world data.
+
+For their experiments with simulated data, IPS is clearly quite succesful in
+addressing bias in click data. Based on figure 1 of their work, we see
+Propensity SVM and Clipped Propensity SVM rankers both greatly outperforming the
+Naive SVM ranker (which does not address bias whatsoever), with the average rank
+of relevant results approaching ideal values (those of the Skyline oracle model)
+as the number of training clicks increases. This is not the case for the Naive
+SVM ranker, whose peformance remains flat and never approaches ideal values
+regardless of the amount of data provided.
+
+Based on these curves, in the presence of high degrees of bias, the performance
+of the models can be improved simply by providing additional training data (i.e.
+additional training clicks).
+
+**TODO: ADD MORE?**
 
 > 2b) 25.0p One of the implicit biases that are ignored as a result of their IPS
 > formulation is the bias caused by implicitly treating non-clicked items as not
@@ -54,8 +70,8 @@ YOUR ANSWER HERE
 YOUR ANSWER HERE
 
 > 3b) 40.0p Try to provide an IPS corrected formula for each of the three LTR
-> loss functions that you have seen and implemented in the computer assignment. If
-> a loss function cannot be adapted in the IPS formula, discuss the possible
+> loss functions that you have seen and implemented in the computer assignment.
+> If a loss function cannot be adapted in the IPS formula, discuss the possible
 > reasons.
 
 YOUR ANSWER HERE
