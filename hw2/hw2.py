@@ -817,8 +817,9 @@ def listwise_loss(scores, labels):
 
 # %% deletable=false nbgrader={"cell_type": "code", "checksum": "0b1f5815de1c00c0bf382ac258865e91", "grade": false, "grade_id": "cell-ab73e5dc979b8d74", "locked": false, "schema_version": 3, "solution": true, "task": false}
 # YOUR CODE HERE
-raise NotImplementedError()
-
+# https://piazza.com/class/kyiksrdfk0b6te?cid=84
+# there is nothing to code here
+# raise NotImplementedError() 
 
 # %% [markdown] deletable=false editable=false nbgrader={"cell_type": "markdown", "checksum": "30e765aeca034864062fb5c9e61a656f", "grade": false, "grade_id": "cell-cdaedc0575186c36", "locked": true, "points": 45, "schema_version": 3, "solution": false, "task": true}
 # \#### Please do not change this. This cell is used for grading.
