@@ -689,28 +689,28 @@ def compute_lambda_i(scores, labels):
     # YOUR CODE HERE
     sigma = 1  # "Use sigma=1."
     N = labels.size(0)
-    # Generate all possible doc pairs (i,j)
-    
-    # Now we need to find all j=1..N such that (i,j) is a valid pair. For each valid combination we compute lambda_i,j
-    lambda_i = torch.zeros(N)
-    for i in range(N):
-        lambda_ij = torch.zeros(N-1)
-        for idx, j in enumerate([idx for idx in range(N) if idx!=i]): # j's such that pair (i,j) exists
-            
-            label_i = labels[i]
-            score_i = scores[i]
-            
-            label_j = labels[j]
-            score_j = scores[j]
-            
-            scores_diff = score_i - score_j
-            labels_diff = label_i - label_j
-            
-            S_ij = torch.sign(labels_diff)
-            lambda_ij[idx] = sigma * (0.5 * (1 - S_ij) - (1 / (1 + torch.exp(sigma * scores_diff))))
-            
-        lambda_i[i] = torch.sum(lambda_ij)
-
+    # if there's only one (or zero) rating
+    if N < 2:
+        # TODO: waiting for https://piazza.com/class/kyiksrdfk0b6te?cid=92
+        return torch.zeros_like(scores)
+    # for each score i, compute lambda_ij for each of j remaining scores 
+    comb_idxs = torch.tensor(list(itertools.combinations(range(N), r=N-1))[::-1])
+    scores = scores.squeeze()
+    # N x N-1
+    scores_j = scores[comb_idxs]
+    labels_j = labels[comb_idxs]
+    # N x N-1 (elementwise operations)
+    scores_diff = scores[:, np.newaxis] - scores_j
+    labels_diff = labels[:, np.newaxis] - labels_j
+    # N x N-1 (elementwise operation)
+    S_ij = torch.sign(labels_diff)
+    # N x N-1 (elementwise operations)
+    lambda_ij = sigma * (
+        0.5 * (1 - S_ij)
+        - 1 / (1 + torch.exp(sigma*scores_diff))
+    )
+    # N X 1 via summation
+    lambda_i = lambda_ij.sum(axis=1)
     return lambda_i
 
 
