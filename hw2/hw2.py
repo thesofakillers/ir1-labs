@@ -679,7 +679,7 @@ def compute_lambda_i(scores, labels):
     """
     Compute \lambda_i (defined in the previous cell). (assume sigma=1.)
 
-    scores: tensor of size [N, 1] (the output of a neural network), 
+    scores: tensor of size [N, 1] (the output of a neural network),
     where N = length of <query, document> pairs
     labels: tensor of size [N], contains the relevance labels
 
@@ -693,8 +693,8 @@ def compute_lambda_i(scores, labels):
     if N < 2:
         # TODO: waiting for https://piazza.com/class/kyiksrdfk0b6te?cid=92
         return torch.zeros_like(scores)
-    # for each score i, compute lambda_ij for each of j remaining scores 
-    comb_idxs = torch.tensor(list(itertools.combinations(range(N), r=N-1))[::-1])
+    # for each score i, compute lambda_ij for each of j remaining scores
+    comb_idxs = torch.tensor(list(itertools.combinations(range(N), r=N - 1))[::-1])
     scores = scores.squeeze()
     # N x N-1
     scores_j = scores[comb_idxs]
@@ -705,10 +705,7 @@ def compute_lambda_i(scores, labels):
     # N x N-1 (elementwise operation)
     S_ij = torch.sign(labels_diff)
     # N x N-1 (elementwise operations)
-    lambda_ij = sigma * (
-        0.5 * (1 - S_ij)
-        - 1 / (1 + torch.exp(sigma*scores_diff))
-    )
+    lambda_ij = sigma * (0.5 * (1 - S_ij) - 1 / (1 + torch.exp(sigma * scores_diff)))
     # N X 1 via summation
     lambda_i = lambda_ij.sum(axis=1)
     return lambda_i
@@ -754,8 +751,9 @@ assert torch.allclose(
 
 def train_batch_vector(net, x, y, loss_fn, optimizer):
     """
-    Takes as input a batch of size N, i.e. feature matrix of size (N, 501), label vector of size (N), 
-    the loss function and optimizer for computing the gradients, and updates the weights of the model.
+    Takes as input a batch of size N, i.e. feature matrix of size (N, 501),
+    label vector of size (N), the loss function and optimizer for computing the gradients,
+    and updates the weights of the model.
     The loss function returns a vector of size [N, 1], the same as the output of network.
 
     Input:  x: feature matrix, a [N, 501] tensor
@@ -764,7 +762,12 @@ def train_batch_vector(net, x, y, loss_fn, optimizer):
             optimizer: an optimizer for computing the gradients (we use Adam)
     """
     # YOUR CODE HERE
-    raise NotImplementedError()
+    optimizer.zero_grad()
+    preds = net(x)
+    # loss_fn can be something like compute_lambda_i
+    lambda_i = loss_fn(preds, y)
+    torch.autograd.backward(preds, lambda_i)
+    optimizer.step()
 
 
 # %% deletable=false editable=false nbgrader={"cell_type": "code", "checksum": "fb1cc3bce4c3ae4f8387635e3f026702", "grade": true, "grade_id": "cell-fd6b806296de66c8", "locked": true, "points": 0, "schema_version": 3, "solution": false, "task": false}
