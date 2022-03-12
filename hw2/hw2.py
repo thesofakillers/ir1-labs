@@ -693,18 +693,18 @@ def compute_lambda_i(scores, labels):
     if N < 2:
         # TODO: waiting for https://piazza.com/class/kyiksrdfk0b6te?cid=92
         return torch.zeros_like(scores)
-    # for each score i, compute lambda_ij for each of j remaining scores
-    comb_idxs = torch.tensor(list(itertools.combinations(range(N), r=N - 1))[::-1])
+    # for each score i, compute lambda_ij for j scores
+    comb_idxs = torch.arange(N).repeat(N).reshape(N, N)
     scores = scores.squeeze()
-    # N x N-1
+    # N x N
     scores_j = scores[comb_idxs]
     labels_j = labels[comb_idxs]
-    # N x N-1 (elementwise operations)
+    # N x N (elementwise operations)
     scores_diff = scores[:, np.newaxis] - scores_j
     labels_diff = labels[:, np.newaxis] - labels_j
-    # N x N-1 (elementwise operation)
+    # N x N (elementwise operation)
     S_ij = torch.sign(labels_diff)
-    # N x N-1 (elementwise operations)
+    # N x N (elementwise operations)
     lambda_ij = sigma * (0.5 * (1 - S_ij) - 1 / (1 + torch.exp(sigma * scores_diff)))
     # N X 1 via summation
     lambda_i = lambda_ij.sum(axis=1)
@@ -798,115 +798,88 @@ def train_batch_vector(net, x, y, loss_fn, optimizer):
 #  - Proper application of the formula: 15 points
 #  - Loss values as expected: 15 points
 
-# %%
-
-r = torch.arange(1,5)
-
-
 # %% deletable=false nbgrader={"cell_type": "code", "checksum": "a3d4214edbf49446840f54566aaad48b", "grade": false, "grade_id": "cell-48f6a2a1c4a529b6", "locked": false, "schema_version": 3, "solution": true, "task": false}
 # TODO: Implement this! (60 points)
+def dcg(labels):
+    """
+    Computes the discounted cumulative gain
+    for a set of relevance labels
+    """
+    numerator = 2**labels - 1
+    denominator = torch.log2(torch.arange(labels.size(0)) + 2)
+    dcg = (numerator / denominator).sum()
+    return dcg
+
+
+def swap(tensor, idx_a, idx_b):
+    """
+    Swaps two elements in a tensor
+    """
+    new_tensor = tensor.clone()
+    new_tensor[[idx_a, idx_b]] = new_tensor[[idx_b, idx_a]]
+    return new_tensor
+
+
 def listwise_loss(scores, labels):
 
     """
     Compute the LambdaRank loss. (assume sigma=1.)
 
-    scores: tensor of size [N, 1] (the output of a neural network), where N = length of <query, document> pairs
+    scores: tensor of size [N, 1] (the output of a neural network),
+        where N = length of <query, document> pairs
     labels: tensor of size [N], contains the relevance labels
 
     returns: a tensor of size [N, 1]
     """
 
     # YOUR CODE HERE
-    
-    # HELPER FUNCTIONS HERE ------------------------------------------------
-    def ndcg_score(ranking):
-        ideal_ranking, _ = torch.sort(ranking) # second element contains the sorted indices
-        return dcg(ranking)/dcg(ideal_ranking)
-    
-    def dcg(relevance):
-        pos = torch.arange(1,relevance.shape[0]+1)
-        DCG = ((2**relevance - 1) / torch.log2(pos +1)).sum().item()
-        return DCG           
-            
-    # Helper function to swap two elements of a list
-    def swapPositions(input_list, pos1, pos2):
-        # relevance is a torch tensor
-        l = torch.clone(input_list)
-        get = input_list[pos1], input_list[pos2]
-        # unpacking those elements
-        l[pos2], l[pos1] = get
-        return l
-    
-    # -----------------------------------------------------------------------
-
-    sigma=1
+    sigma = 1  # "Use sigma=1."
     N = labels.size(0)
-    # Now we need to find all j=1..N such that (i,j) is a valid pair. For each valid combination we compute lambda_i,j
-    dC_ds_i = torch.zeros(N)
+    # if there's only one (or zero) rating
+    if N < 2:
+        # TODO: waiting for https://piazza.com/class/kyiksrdfk0b6te?cid=92
+        return torch.zeros_like(scores)
+    # for each score i, compute lambda_ij for each of j remaining scores. N x N-1 tensor
+    comb_idxs = torch.arange(N).repeat(N).reshape(N, N)
+
+    scores = scores.squeeze()
+    # N x N
+    scores_j = scores[comb_idxs]
+    labels_j = labels[comb_idxs]
+    # N x N
+    scores_diff = scores[:, np.newaxis] - scores_j
+    labels_diff = labels[:, np.newaxis] - labels_j
+    # N x N (elementwise operation)
+    S_ij = torch.sign(labels_diff)
+    # N x N (elementwise operations)
+    lambda_ij = sigma * (0.5 * (1 - S_ij) - 1 / (1 + torch.exp(sigma * scores_diff)))
+    # we need to scale our lambda_ij by Delta NDCG, requires some resorting of our labels
+    sort_ind = torch.argsort(scores, descending=True)
+    sorted_labels = labels[sort_ind]
+    ideal_labels, _ = torch.sort(labels, descending=True)
+    # can now compute dcg's and scale
+    max_dcg = dcg(ideal_labels)
+    normal_dcg = dcg(sorted_labels)
     for i in range(N):
-        temp = torch.zeros(N-1) # temp will contain the lambda_ij * delta_ndcg for each (i,j) pair
-        for idx, j in enumerate([idx for idx in range(N) if idx!=i]): # j's such that pair (i,j) exists
+        for j in range(N):
+            swapped_labels = swap(sorted_labels, i, j)
+            # we will divide by max_dcg later
+            abs_delta_dcg = torch.abs(normal_dcg - dcg(swapped_labels))
+            lambda_ij[i, j] *= abs_delta_dcg
+    # N X 1 via summation
+    lambda_i = lambda_ij.sum(axis=1)
+    # divide by maximum DCG to get normalized DCG.
+    return lambda_i / max_dcg
 
-            label_i = labels[i]
-            score_i = scores[i]
+# note, the first assert doesn't pass (but apparently its too stringent)
+# second assert below passes.
 
-            label_j = labels[j]
-            score_j = scores[j]
-
-            scores_diff = score_i - score_j
-            labels_diff = label_i - label_j
-
-            S_ij = torch.sign(labels_diff)
-            lambda_ij = sigma * (0.5 * (1 - S_ij) - (1 / (1 + torch.exp(sigma * scores_diff))))
-            
-            with torch.no_grad():
-                ndcg_ij = ndcg_score(labels) # not sure, am I supposed to use labels or scores here?
-                                             # should I use the scores and then the labels to generate
-                                             # the dcg of the ideal ranking? idk
-                ndcg_ji = ndcg_score(swapPositions(labels, i, j))
-                delta_ndcg = abs(ndcg_ij - ndcg_ji)
-            
-            temp[idx] = lambda_ij * delta_ndcg
-
-        dC_ds_i[i] = torch.sum(temp)
-        
-    return dC_ds_i
-
-
-# %% nbgrader={"cell_type": "code", "checksum": "a3d4214edbf49446840f54566aaad48b", "grade": false, "grade_id": "cell-48f6a2a1c4a529b6", "locked": false, "schema_version": 3, "solution": true, "task": false}
-# I added this cell and copy-pasted the test below so that I could print our values
-def mean_lambda_list(scores, labels):
-    return torch.stack(
-        [
-            listwise_loss(scores, labels).mean(),
-            torch.square(listwise_loss(scores, labels)).mean(),
-        ]
-    )
-
-
-scores_1 = torch.FloatTensor([10.2, 0.3, 4.5, 2.0, -1.0]).unsqueeze(1)
-labels_1 = torch.FloatTensor([1, 2, 3, 0, 4])
-scores_2 = torch.FloatTensor([3.2, 1.7]).unsqueeze(1)
-labels_2 = torch.FloatTensor([3, 1])
-
-print(mean_lambda_list(scores_1, labels_1))
-print(torch.tensor([0, 0.1391]), '\n')
-print(mean_lambda_list(scores_2, labels_2))
-print(torch.tensor([0, 2.8024e-03]))
-
-
-assert torch.allclose(
-    mean_lambda_list(scores_1, labels_1), torch.tensor([0, 0.1391]), atol=1e-03
-)
-assert torch.allclose(
-    mean_lambda_list(scores_2, labels_2), torch.tensor([0, 2.8024e-03]), atol=1e-03
-)
 
 # %% deletable=false nbgrader={"cell_type": "code", "checksum": "0b1f5815de1c00c0bf382ac258865e91", "grade": false, "grade_id": "cell-ab73e5dc979b8d74", "locked": false, "schema_version": 3, "solution": true, "task": false}
 # YOUR CODE HERE
 # https://piazza.com/class/kyiksrdfk0b6te?cid=84
 # there is nothing to code here
-# raise NotImplementedError() 
+# raise NotImplementedError()
 
 # %% [markdown] deletable=false editable=false nbgrader={"cell_type": "markdown", "checksum": "30e765aeca034864062fb5c9e61a656f", "grade": false, "grade_id": "cell-cdaedc0575186c36", "locked": true, "points": 45, "schema_version": 3, "solution": false, "task": true}
 # \#### Please do not change this. This cell is used for grading.
