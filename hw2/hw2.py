@@ -707,7 +707,7 @@ def compute_lambda_i(scores, labels):
     # N x N (elementwise operations)
     lambda_ij = sigma * (0.5 * (1 - S_ij) - 1 / (1 + torch.exp(sigma * scores_diff)))
     # N X 1 via summation
-    lambda_i = lambda_ij.sum(axis=1)
+    lambda_i = lambda_ij.sum(axis=1, keepdim=True)
     return lambda_i
 
 
@@ -867,7 +867,7 @@ def listwise_loss(scores, labels):
             abs_delta_dcg = torch.abs(normal_dcg - dcg(swapped_labels))
             lambda_ij[i, j] *= abs_delta_dcg
     # N X 1 via summation
-    lambda_i = lambda_ij.sum(axis=1)
+    lambda_i = lambda_ij.sum(axis=1, keepdim=True)
     # divide by maximum DCG to get normalized DCG.
     return lambda_i / max_dcg
 
@@ -920,7 +920,7 @@ assert torch.allclose(
 # %% [markdown] deletable=false editable=false nbgrader={"cell_type": "markdown", "checksum": "012c6d229df9095645e8b10b6f5a9398", "grade": false, "grade_id": "cell-db32842ad0736348", "locked": true, "schema_version": 3, "solution": false, "task": false}
 # First, let's have a function that plots the average scores of relevant (levels 3 and 4) and non-relevant (levels 0, 1, and 2) scores in terms of training epochs for different loss functions:
 
-# %% deletable=false editable=false nbgrader={"cell_type": "code", "checksum": "2a359c3ed34cd7b583b75f1f8bf3291e", "grade": false, "grade_id": "cell-7e41216fae531bb9", "locked": true, "schema_version": 3, "solution": false, "task": false}
+# %% deletable=false nbgrader={"cell_type": "code", "checksum": "2a359c3ed34cd7b583b75f1f8bf3291e", "grade": false, "grade_id": "cell-7e41216fae531bb9", "locked": true, "schema_version": 3, "solution": false, "task": false}
 loss_functions = {
     "pointwise": [pointwise_loss, train_batch],
     "pairwise": [compute_lambda_i, train_batch_vector],
@@ -940,9 +940,9 @@ def plot_relevance_scores(batches, loss_function):
 
     rel, nrel = [], []
 
-    for i in range(100):
+    for epoch in tqdm(range(100)):
         r, n = [], []
-        for x, y in test_batchs:
+        for x, y in tqdm(test_batchs, desc=f"Test Epoch {epoch+1}", leave=False):
             binary_rel = np.round(y / 4, 0)
             scores = net(x)[:, 0]
             r.append(
@@ -954,15 +954,15 @@ def plot_relevance_scores(batches, loss_function):
                 / torch.sum((1.0 - binary_rel)).detach().numpy()
             )
 
-        for x, y in train_batchs:
+        for x, y in tqdm(train_batchs, desc=f"Train Epoch {epoch+1}", leave=False):
             train_fn(net, x, y, loss_fn, optimizer)
         rel.append(np.mean(np.array(r)))
         nrel.append(np.mean(np.array(n)))
 
     plt.figure()
     plt.suptitle(loss_function)
-    plt.plot(np.arange(10, len(rel)), rel[10:], label="relevant")
-    plt.plot(np.arange(10, len(nrel)), nrel[10:], label="non-relevant")
+    plt.plot(np.arange(0, len(rel)), rel[0:], label="relevant")
+    plt.plot(np.arange(0, len(nrel)), nrel[0:], label="non-relevant")
     plt.legend()
 
 
@@ -970,7 +970,7 @@ def plot_relevance_scores(batches, loss_function):
 # For efficiency issues, we select a small number (83) of queries to test different loss functions.
 # We split these queries into train and test with a 3:1 ratio.
 
-# %% deletable=false editable=false nbgrader={"cell_type": "code", "checksum": "5e4a6e95947a2bab07ea0e0ca08e7661", "grade": false, "grade_id": "cell-44deafb1053c2658", "locked": true, "schema_version": 3, "solution": false, "task": false}
+# %% deletable=false editable=false nbgrader={"cell_type": "code", "checksum": "5e4a6e95947a2bab07ea0e0ca08e7661", "grade": false, "grade_id": "cell-44deafb1053c2658", "locked": true, "schema_version": 3, "solution": false, "task": false} jupyter={"source_hidden": true} tags=[]
 batches = [
     train_data[i]
     for i in [
@@ -1064,12 +1064,16 @@ batches = [
 # Next, we train a neural network with different loss functions on the selected queries.
 # During training, we save the average scores of relevant and non-relevant validation items for each training epoch and plot them as follows:
 
-# %% deletable=false editable=false nbgrader={"cell_type": "code", "checksum": "8cdc20081bdade27c899871b4cf412a4", "grade": false, "grade_id": "cell-7c9e67ee163968e5", "locked": true, "schema_version": 3, "solution": false, "task": false}
+# %% deletable=false nbgrader={"cell_type": "code", "checksum": "8cdc20081bdade27c899871b4cf412a4", "grade": false, "grade_id": "cell-7c9e67ee163968e5", "locked": true, "schema_version": 3, "solution": false, "task": false}
+print("pointwise")
 plot_relevance_scores(batches, "pointwise")
 
+print("pairwise")
 plot_relevance_scores(batches, "pairwise")
 
+print("listwise")
 plot_relevance_scores(batches, "listwise")
+
 
 # %% [markdown] deletable=false editable=false nbgrader={"cell_type": "markdown", "checksum": "203546af0372846259b98ba4ff01aee0", "grade": false, "grade_id": "cell-ab14e8eb74d2f32d", "locked": true, "schema_version": 3, "solution": false, "task": false}
 # **Implementation (15 points):**
@@ -1079,8 +1083,6 @@ plot_relevance_scores(batches, "listwise")
 
 # %% deletable=false nbgrader={"cell_type": "code", "checksum": "2fd56b14f0a274046d1b11486b930489", "grade": false, "grade_id": "cell-13d804fd4e27794b", "locked": false, "schema_version": 3, "solution": true, "task": false}
 # TODO: Implement this! (15 points)
-
-
 def plot_ndcg10(batches, loss_function):
     seed(420)
     net = NeuralModule()
@@ -1094,10 +1096,22 @@ def plot_ndcg10(batches, loss_function):
     ndcg = []
 
     # YOUR CODE HERE
-    raise NotImplementedError()
+    for epoch in tqdm(range(10)):
+        epoch_ndgc = []
+        for x, y in tqdm(test_batchs, desc=f"Test Epoch {epoch+1}", leave=False):
 
-    #     plt.figure()
-    plt.plot(np.arange(len(ndcg)), ndcg, label=loss_function)
+            scores = net(x)
+            epoch_ndgc.append(
+                evaluate.ndcg10(scores.squeeze().detach().numpy(), y.detach().numpy())
+            )
+
+        for x, y in tqdm(train_batchs, desc=f"Train Epoch {epoch+1}", leave=False):
+            train_fn(net, x, y, loss_fn, optimizer)
+        ndcg.append(np.mean(np.array(epoch_ndgc)))
+
+    plt.figure()
+    plt.suptitle(loss_function)
+    plt.plot(np.arange(len(ndcg)), ndcg, label="NDGC@10 on Test Split")
     plt.legend()
 
 
@@ -1108,10 +1122,11 @@ def plot_ndcg10(batches, loss_function):
 # \#### Please do not change this. This cell is used for grading.
 
 # %%
+print("pointwise")
 plot_ndcg10(batches, "pointwise")
-
+print("pairwise")
 plot_ndcg10(batches, "pairwise")
-
+print("listwise")
 plot_ndcg10(batches, "listwise")
 
 # %% [markdown] deletable=false editable=false nbgrader={"cell_type": "markdown", "checksum": "02a930db82f1928549d31a62ff012c18", "grade": false, "grade_id": "cell-067c6d8584df601e", "locked": true, "schema_version": 3, "solution": false, "task": false}
