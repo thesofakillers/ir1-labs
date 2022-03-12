@@ -805,7 +805,7 @@ def dcg(labels):
     Computes the discounted cumulative gain
     for a set of relevance labels
     """
-    numerator = 2**labels - 1
+    numerator = 2 ** labels - 1
     denominator = torch.log2(torch.arange(labels.size(0)) + 2)
     dcg = (numerator / denominator).sum()
     return dcg
@@ -871,8 +871,12 @@ def listwise_loss(scores, labels):
     # divide by maximum DCG to get normalized DCG.
     return lambda_i / max_dcg
 
+
 # note, the first assert doesn't pass (but apparently its too stringent)
 # second assert below passes.
+# we get
+# tensor([-5.2154e-09,  1.2452e-01])
+# tensor([3.7253e-09, 2.8024e-03])
 
 
 # %% deletable=false nbgrader={"cell_type": "code", "checksum": "0b1f5815de1c00c0bf382ac258865e91", "grade": false, "grade_id": "cell-ab73e5dc979b8d74", "locked": false, "schema_version": 3, "solution": true, "task": false}
