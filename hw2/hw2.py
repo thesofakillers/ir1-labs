@@ -1109,9 +1109,8 @@ def plot_ndcg10(batches, loss_function):
             train_fn(net, x, y, loss_fn, optimizer)
         ndcg.append(np.mean(np.array(epoch_ndgc)))
 
-    plt.figure()
-    plt.suptitle(loss_function)
-    plt.plot(np.arange(len(ndcg)), ndcg, label="NDGC@10 on Test Split")
+    plt.ylabel("NDGC@10")
+    plt.plot(np.arange(len(ndcg)), ndcg, label=loss_function)
     plt.legend()
 
 
@@ -1122,12 +1121,15 @@ def plot_ndcg10(batches, loss_function):
 # \#### Please do not change this. This cell is used for grading.
 
 # %%
+plt.figure()
+plt.title("NDCG@10 for Different Loss Functions")
 print("pointwise")
 plot_ndcg10(batches, "pointwise")
 print("pairwise")
 plot_ndcg10(batches, "pairwise")
 print("listwise")
 plot_ndcg10(batches, "listwise")
+plt.show()
 
 # %% [markdown] deletable=false editable=false nbgrader={"cell_type": "markdown", "checksum": "02a930db82f1928549d31a62ff012c18", "grade": false, "grade_id": "cell-067c6d8584df601e", "locked": true, "schema_version": 3, "solution": false, "task": false}
 # Write a conclusion in the next cell, considering (40 points):
