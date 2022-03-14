@@ -766,7 +766,7 @@ def train_batch_vector(net, x, y, loss_fn, optimizer):
     preds = net(x)
     # loss_fn can be something like compute_lambda_i
     lambda_i = loss_fn(preds, y)
-    torch.autograd.backward(preds, lambda_i)
+    torch.autograd.backward(preds, lambda_i, retain_graph=True)
     optimizer.step()
 
 
@@ -839,10 +839,15 @@ def listwise_loss(scores, labels):
     if N < 2:
         # TODO: waiting for https://piazza.com/class/kyiksrdfk0b6te?cid=92
         return torch.zeros_like(scores)
-    # for each score i, compute lambda_ij for each of j remaining scores. N x N-1 tensor
-    comb_idxs = torch.arange(N).repeat(N).reshape(N, N)
+    # for each score i, compute lambda_ij for each of j scores. N x N tensor
+    comb_idxs = torch.arange(N).repeat(N).reshape(N, N).detach()
 
+    # DCG requires careful consideration of how we sort things
     scores = scores.squeeze()
+    scores, sort_ind = torch.sort(scores, descending=True)
+    labels = labels[sort_ind]
+    ideal_labels, _ = torch.sort(labels, descending=True)
+
     # N x N
     scores_j = scores[comb_idxs]
     labels_j = labels[comb_idxs]
@@ -853,23 +858,21 @@ def listwise_loss(scores, labels):
     S_ij = torch.sign(labels_diff)
     # N x N (elementwise operations)
     lambda_ij = sigma * (0.5 * (1 - S_ij) - 1 / (1 + torch.exp(sigma * scores_diff)))
-    # we need to scale our lambda_ij by Delta NDCG, requires some resorting of our labels
-    sort_ind = torch.argsort(scores, descending=True)
-    sorted_labels = labels[sort_ind]
-    ideal_labels, _ = torch.sort(labels, descending=True)
+
     # can now compute dcg's and scale
     max_dcg = dcg(ideal_labels)
-    normal_dcg = dcg(sorted_labels)
+    normal_dcg = dcg(labels)
     for i in range(N):
         for j in range(N):
-            swapped_labels = swap(sorted_labels, i, j)
-            # we will divide by max_dcg later
-            abs_delta_dcg = torch.abs(normal_dcg - dcg(swapped_labels))
-            lambda_ij[i, j] *= abs_delta_dcg
+            swapped_labels = swap(labels, i, j)
+            abs_delta_ndcg = torch.abs(
+                normal_dcg / max_dcg - dcg(swapped_labels) / max_dcg
+            )
+            lambda_ij[i, j] *= abs_delta_ndcg
     # N X 1 via summation
     lambda_i = lambda_ij.sum(axis=1, keepdim=True)
     # divide by maximum DCG to get normalized DCG.
-    return lambda_i / max_dcg
+    return lambda_i
 
 
 # note, the first assert doesn't pass (but apparently its too stringent)
@@ -900,9 +903,11 @@ def mean_lambda_list(scores, labels):
 
 scores_1 = torch.FloatTensor([10.2, 0.3, 4.5, 2.0, -1.0]).unsqueeze(1)
 labels_1 = torch.FloatTensor([1, 2, 3, 0, 4])
+# https://canvas.uva.nl/courses/28683/discussion_topics/513529
 assert torch.allclose(
-    mean_lambda_list(scores_1, labels_1), torch.tensor([0, 0.1391]), atol=1e-03
+    mean_lambda_list(scores_1, labels_1), torch.tensor([0, 0.1336]), atol=1e-03
 )
+
 
 scores_2 = torch.FloatTensor([3.2, 1.7]).unsqueeze(1)
 labels_2 = torch.FloatTensor([3, 1])
