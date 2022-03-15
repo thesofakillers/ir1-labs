@@ -1096,7 +1096,8 @@ def plot_ndcg10(batches, loss_function):
         ndcg.append(np.mean(np.array(epoch_ndgc)))
 
     plt.ylabel("NDGC@10")
-    plt.plot(np.arange(len(ndcg)), ndcg, label=loss_function)
+    plt.xlabel("Epoch")
+    plt.plot(np.arange(1, len(ndcg)+1), ndcg, label=loss_function)
     plt.legend()
 
 
@@ -1127,4 +1128,16 @@ plt.show()
 # - ... any other observations
 
 # %% [markdown] deletable=false nbgrader={"cell_type": "markdown", "checksum": "4461c424e45dc6cfc23401474acfa562", "grade": true, "grade_id": "cell-115db704e85b78c1", "locked": false, "points": 40, "schema_version": 3, "solution": true, "task": false}
-# YOUR ANSWER HERE
+# ---
+#
+# It is difficult to immediately discern convergence based on our relevance score plots, as we have no formal definition of convergence. If we take convergence to mean "our values plateau", then we can generally see a convergence at around 20 epochs. This is particularly evident with the pointwise relevance scores which stabilize at scores of approximately 1.75 and 1.25 for relevant and non-relevant documents respectively. This plateauing is arguably not present in the pairwise and listwise plots, although the change is certainly steeper before 20 epochs in both cases. A clearer plateau is discernable at around 60 epochs for pairwise, while what seems like the beginning of a plateau is visible at around 80 epochs for listwise. With this definition of convergence, we can conclude that pointwise loss converges earlier than pairwise loss, which in turn converges earlier than listwise loss.
+#
+# However, while pointwise loss may converge earlier, it seems to converge to generally inappropriate values, with the average relevance score of relevant documents fluctuating around 1.75 instead of the target 3 or 4. A similar issue can be noticed in pairwise loss, which seems to suffering from a positive bias, with non-relevant documents scoring at around 3 (instead of 0, 1, or 2) and relevant documents scoring at around 5 or 6 (rather than 3 or 4). While the same problem can be noticed with listwise loss, when the plateau is finally reached at epoch 80, we see that relevant documents are correctly scored around 4 and non-relevant documents around 0. We do note some variance here - this may be due to the fact that our relevance scores are not binary and that the convergence perhaps was not yet "mature" and our model may have benefitted from further training.
+#
+# Training was limited due to time reasons. It is difficult to present a formal analysis of the time complexity of our models. However what can be said is that pointwise and pairwise loss (as well as its speed up) could be easily vectorized, while listwise loss required two additional loops over $N$ score-label pairs. This made listwise loss $O(N^2)$ slower than pointwise and listwise loss.
+#
+# TODO:
+# - perhaps more rigour on this time complexity paragraph
+# - something about NDCG@10
+#
+# ---
