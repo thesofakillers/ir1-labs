@@ -675,6 +675,23 @@ assert torch.allclose(
 
 # %% deletable=false nbgrader={"cell_type": "code", "checksum": "42ce1d78286b65190558bd0a04c9a5a8", "grade": false, "grade_id": "cell-ba7f8d8631e3f1d6", "locked": false, "schema_version": 3, "solution": true, "task": false}
 # TODO: Implement this! (50 points)
+
+
+def compute_lambda_ij_matrix(scores, labels, sigma):
+    """
+    Computes the lambda ij matrix
+    """
+    # nested for loop over i and j
+    # N x N (elementwise operations)
+    scores_diff = scores - scores.squeeze()
+    labels_diff = labels.view(-1, 1) - labels
+    # N x N (elementwise operation)
+    S_ij = torch.sign(labels_diff)
+    # N x N (elementwise operations)
+    lambda_ij = sigma * (0.5 * (1 - S_ij) - torch.sigmoid(-sigma * scores_diff))
+    return lambda_ij
+
+
 def compute_lambda_i(scores, labels):
     """
     Compute \lambda_i (defined in the previous cell). (assume sigma=1.)
@@ -685,27 +702,9 @@ def compute_lambda_i(scores, labels):
 
     return: \lambda_i, a tensor of shape: [N, 1]
     """
-
     # YOUR CODE HERE
-    sigma = 1  # "Use sigma=1."
-    N = labels.size(0)
-    # if there's only one (or zero) rating
-    if N < 2:
-        # TODO: waiting for https://piazza.com/class/kyiksrdfk0b6te?cid=92
-        return torch.zeros_like(scores)
-    # for each score i, compute lambda_ij for j scores
-    comb_idxs = torch.arange(N).repeat(N).reshape(N, N)
-    scores = scores.squeeze()
-    # N x N
-    scores_j = scores[comb_idxs]
-    labels_j = labels[comb_idxs]
-    # N x N (elementwise operations)
-    scores_diff = scores[:, np.newaxis] - scores_j
-    labels_diff = labels[:, np.newaxis] - labels_j
-    # N x N (elementwise operation)
-    S_ij = torch.sign(labels_diff)
-    # N x N (elementwise operations)
-    lambda_ij = sigma * (0.5 * (1 - S_ij) - 1 / (1 + torch.exp(sigma * scores_diff)))
+    sigma = 1.0  # "Use sigma=1."
+    lambda_ij = compute_lambda_ij_matrix(scores, labels, sigma)
     # N X 1 via summation
     lambda_i = lambda_ij.sum(axis=1, keepdim=True)
     return lambda_i
@@ -766,7 +765,7 @@ def train_batch_vector(net, x, y, loss_fn, optimizer):
     preds = net(x)
     # loss_fn can be something like compute_lambda_i
     lambda_i = loss_fn(preds, y)
-    torch.autograd.backward(preds, lambda_i, retain_graph=True)
+    torch.autograd.backward(preds, lambda_i)
     optimizer.step()
 
 
@@ -806,18 +805,18 @@ def dcg(labels):
     for a set of relevance labels
     """
     numerator = 2 ** labels - 1
-    denominator = torch.log2(torch.arange(labels.size(0)) + 2)
+    denominator = np.log2(np.arange(labels.shape[0]) + 2)
     dcg = (numerator / denominator).sum()
     return dcg
 
 
-def swap(tensor, idx_a, idx_b):
+def swap(array, idx_a, idx_b):
     """
-    Swaps two elements in a tensor
+    Swaps two elements in an array
     """
-    new_tensor = tensor.clone()
-    new_tensor[[idx_a, idx_b]] = new_tensor[[idx_b, idx_a]]
-    return new_tensor
+    new_array = array.copy()
+    new_array[[idx_a, idx_b]] = new_array[[idx_b, idx_a]]
+    return new_array
 
 
 def listwise_loss(scores, labels):
@@ -835,51 +834,33 @@ def listwise_loss(scores, labels):
     # YOUR CODE HERE
     sigma = 1  # "Use sigma=1."
     N = labels.size(0)
-    # if there's only one (or zero) rating
-    if N < 2:
-        # TODO: waiting for https://piazza.com/class/kyiksrdfk0b6te?cid=92
-        return torch.zeros_like(scores)
-    # for each score i, compute lambda_ij for each of j scores. N x N tensor
-    comb_idxs = torch.arange(N).repeat(N).reshape(N, N).detach()
 
-    # DCG requires careful consideration of how we sort things
-    scores = scores.squeeze()
-    scores, sort_ind = torch.sort(scores, descending=True)
-    labels = labels[sort_ind]
-    ideal_labels, _ = torch.sort(labels, descending=True)
+    # lambda_ij matrix from sped up pairwise loss
+    lambda_ij = compute_lambda_ij_matrix(scores, labels, sigma)
 
-    # N x N
-    scores_j = scores[comb_idxs]
-    labels_j = labels[comb_idxs]
-    # N x N
-    scores_diff = scores[:, np.newaxis] - scores_j
-    labels_diff = labels[:, np.newaxis] - labels_j
-    # N x N (elementwise operation)
-    S_ij = torch.sign(labels_diff)
-    # N x N (elementwise operations)
-    lambda_ij = sigma * (0.5 * (1 - S_ij) - 1 / (1 + torch.exp(sigma * scores_diff)))
+    # we compute our scalings in numpy, since we do not backpropogate them
+    np_scores = scores.clone().squeeze().detach().numpy()
+    np_labels = labels.clone().detach().numpy()
 
-    # can now compute dcg's and scale
-    max_dcg = dcg(ideal_labels)
-    normal_dcg = dcg(labels)
+    # DCG need careful consideration of sorting
+    ideal_labels = np.sort(np_labels)[::-1]
+    idcg = dcg(ideal_labels)
+    sort_ind = np.argsort(np_scores)[::-1]
+    sorted_labels = np_labels[sort_ind]
+    dcg_base = dcg(sorted_labels)
+    ndcg_base = dcg_base / idcg
     for i in range(N):
         for j in range(N):
-            swapped_labels = swap(labels, i, j)
-            abs_delta_ndcg = torch.abs(
-                normal_dcg / max_dcg - dcg(swapped_labels) / max_dcg
-            )
-            lambda_ij[i, j] *= abs_delta_ndcg
-    # N X 1 via summation
-    lambda_i = lambda_ij.sum(axis=1, keepdim=True)
-    # divide by maximum DCG to get normalized DCG.
+
+            swapped_scores = swap(np_scores, i, j)
+            swapped_sort_ind = np.argsort(swapped_scores)[::-1]
+            swapped_sorted_labels = np_labels[swapped_sort_ind]
+            ndcg_swapped = dcg(swapped_sorted_labels) / idcg
+            scaling_amount = np.abs(ndcg_base - ndcg_swapped)
+            lambda_ij[i, j] *= scaling_amount
+
+    lambda_i = (lambda_ij).sum(axis=1, keepdim=True)
     return lambda_i
-
-
-# note, the first assert doesn't pass (but apparently its too stringent)
-# second assert below passes.
-# we get
-# tensor([-5.2154e-09,  1.2452e-01])
-# tensor([3.7253e-09, 2.8024e-03])
 
 
 # %% deletable=false nbgrader={"cell_type": "code", "checksum": "0b1f5815de1c00c0bf382ac258865e91", "grade": false, "grade_id": "cell-ab73e5dc979b8d74", "locked": false, "schema_version": 3, "solution": true, "task": false}
@@ -975,7 +956,7 @@ def plot_relevance_scores(batches, loss_function):
 # For efficiency issues, we select a small number (83) of queries to test different loss functions.
 # We split these queries into train and test with a 3:1 ratio.
 
-# %% deletable=false editable=false nbgrader={"cell_type": "code", "checksum": "5e4a6e95947a2bab07ea0e0ca08e7661", "grade": false, "grade_id": "cell-44deafb1053c2658", "locked": true, "schema_version": 3, "solution": false, "task": false} jupyter={"source_hidden": true} tags=[]
+# %% deletable=false editable=false nbgrader={"cell_type": "code", "checksum": "5e4a6e95947a2bab07ea0e0ca08e7661", "grade": false, "grade_id": "cell-44deafb1053c2658", "locked": true, "schema_version": 3, "solution": false, "task": false} jupyter={"source_hidden": true} tags=[] hide_input=true
 batches = [
     train_data[i]
     for i in [
@@ -1147,5 +1128,3 @@ plt.show()
 
 # %% [markdown] deletable=false nbgrader={"cell_type": "markdown", "checksum": "4461c424e45dc6cfc23401474acfa562", "grade": true, "grade_id": "cell-115db704e85b78c1", "locked": false, "points": 40, "schema_version": 3, "solution": true, "task": false}
 # YOUR ANSWER HERE
-
-# %%
