@@ -90,7 +90,7 @@ $$\hat{\Delta}_{IPS}(y|\mathbf{x}_i, \bar{\mathbf{y}_i}, o_i) = \sum\limits_{y:o
 > be extended to the graded user feedback, e.g., a 0 to 5 rating scenario in a
 > recommendation.
 
-YOUR ANSWER HERE
+The general IPS formula in the paper is $\hat{\Delta}_{IPS}(\mathbf{y}|\mathbf{x}_i, \bar{\mathbf{y}}, o_i) = \sum\limits_{y:o_i(y)=1} \frac{rank(y|\mathbf{y}) \cdot r_i(y)}{Q(o_i(y))=1|\mathbf{x}_i, \bar{\mathbf{y}_i}, r_i)}$. In the case of binary clicks $r_i(y) \in \{0,1\}$ because we assume a click means the document is relevant. With graded user feedback then $r_i(y) \in \{0..5\}$, however this would not change the IPS formula above.
 
 > 4b) 20.0p One of the issues with IPS is its high variance. Explain the issue
 > and discuss what can be done to reduce the variance of IPS.
