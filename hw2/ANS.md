@@ -71,7 +71,7 @@ One method is to randomise results to make sure that documents that were not cli
 > unbiased using the IPS formula and discuss what is the property of that loss
 > function that allows for IPS correction.
 
-YOUR ANSWER HERE
+The naive (biased) loss function in Thorsten et al. is given as $\mathcal{L} = \frac{1}{N} \sum\limits_{i=1}^{N}\sum\limits_{y \in \mathbf{y}} rank(y|\mathbf{y}) \cdot r_i(y)$. We can unbias this function using IPS because the loss is pointwise - meaning it is the sum of individual losses per query.
 
 > 3b) 40.0p Try to provide an IPS corrected formula for each of the three LTR
 > loss functions that you have seen and implemented in the computer assignment.
