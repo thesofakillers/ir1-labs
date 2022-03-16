@@ -129,8 +129,8 @@ YOUR ANSWER HERE
 
 ## 8 Counterfactuals and online learning
 
-> 30.0p How do counterfactual and online learning to rank approaches perform
-> compare to each other w.r.t ranking performance and user experience?
+> 30.0p How do counterfactual and online learning to rank approaches compare to
+> each other w.r.t ranking performance and user experience?
 
 YOUR ANSWER HERE
 
