@@ -56,12 +56,12 @@ additional training data will further increase performance.
 > formulation is the bias caused by implicitly treating non-clicked items as not
 > relevant. Discuss when this implicit bias is problematic?
 
-YOUR ANSWER HERE
+Assume document $y'$ s.t. $o_i(y') = 0 \wedge r_i(y') = 1$. Here $o_i(y') = 0$ would imply that the document was not clicked. It means that it will not be included in the empirical risk $\hat{R}_{IPS}(S)$ making this document virtually invisible during training. This would not be problematic the  document is fairly similar in content and structure to other documents deemed relevant. Even when we did not explicitly train on that document the new model could still rank it high due to it's similarity. However this could be problematic for new content, for example in cases when new documents show up for a topic but may include unseen before content. This could be the case with news where recent developments on a certain news topic - e.g. new events occuring or new people being mentioned.
 
 > 2c) 20.0p Propose a simple method to correct for the implicit bias of
 > non-clicks.
 
-YOUR ANSWER HERE
+One method is to randomise results to make sure that documents that were not clicked appear closer to the top of the results and therefore a user is more likely to observe them. It's risky to randomly shuffle all results, therefore a RandPair method could be used. This means chosing a random pair of documents to swap for every user query. This makes sure that position bias is overcome and increases the chance that a new unseen document is displayed in a higher rank and therefore clicked.
 
 ## 3 LTR with IPS
 
