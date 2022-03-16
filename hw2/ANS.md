@@ -30,8 +30,8 @@ read the following papers.
 > addressing bias in click data? In the presence of high degrees of bias, how
 > could the performance of their model be improved?
 
-The authors empirically evaluate IPS in experiments using synthetic and
-real-world data.
+The authors empirically evaluate inverse propensity scoring (IPS) in experiments
+using synthetic and real-world data.
 
 For their experiments with simulated data, IPS is clearly quite succesful in
 addressing bias in click data. Based on figure 1 of their work, we see
@@ -46,7 +46,11 @@ Based on these curves, in the presence of high degrees of bias, the performance
 of the models can be improved simply by providing additional training data (i.e.
 additional training clicks).
 
-**TODO: ADD MORE?**
+The success of IPS is also discernable in the authors' experiments with
+real-world data. As shown in table 1 of their work, Propensity SVM-ranker
+outperforms (has more wins than) both a hand-crafted ranker and a Naive SVM
+ranker. The authors suggest that as shown with the synthetic data experiments,
+additional training data will further increase performance.
 
 > 2b) 25.0p One of the implicit biases that are ignored as a result of their IPS
 > formulation is the bias caused by implicitly treating non-clicked items as not
