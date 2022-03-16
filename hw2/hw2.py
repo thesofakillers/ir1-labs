@@ -551,7 +551,6 @@ print(f"Query {q_i} has {len(features_i)} query-document pairs")
 print(f"Shape of features for Query {q_i}: {features_i.size()}")
 print(f"Shape of labels for Query {q_i}: {labels_i.size()}")
 
-
 # %% [markdown] deletable=false editable=false nbgrader={"cell_type": "markdown", "checksum": "8460c471db823c23b58d70e117dadbe4", "grade": false, "grade_id": "cell-acdb1bfcd2ec582e", "locked": true, "schema_version": 3, "solution": false, "task": false}
 # **Implementation (35 points):**
 # First, implement the pairwaise loss, described above.
@@ -561,6 +560,13 @@ print(f"Shape of labels for Query {q_i}: {labels_i.size()}")
 #  - Proper application of the formula: 10 points
 #  - Mean loss: 5 points
 #  - Loss values for test cases as expected: 10 points
+
+# %%
+N = 3
+import itertools
+
+len(list(itertools.permutations(range(N), 2)))
+
 
 # %% deletable=false nbgrader={"cell_type": "code", "checksum": "3d90847f86e90454879271d878fc6926", "grade": false, "grade_id": "cell-3a612aeb9e982639", "locked": false, "schema_version": 3, "solution": true, "task": false}
 # TODO: Implement this! (35 points)
@@ -806,7 +812,7 @@ def dcg(labels):
     """
     numerator = 2 ** labels - 1
     denominator = np.log2(np.arange(labels.shape[0]) + 2)
-    dcg = (numerator / denominator).sum()
+    dcg = (numerator / denominator).sum(axis=-1)
     return dcg
 
 
@@ -849,16 +855,18 @@ def listwise_loss(scores, labels):
     sorted_labels = np_labels[sort_ind]
     dcg_base = dcg(sorted_labels)
     ndcg_base = dcg_base / idcg
-    for i in range(N):
-        for j in range(N):
-
-            swapped_scores = swap(np_scores, i, j)
-            swapped_sort_ind = np.argsort(swapped_scores)[::-1]
-            swapped_sorted_labels = np_labels[swapped_sort_ind]
-            ndcg_swapped = dcg(swapped_sorted_labels) / idcg
-            scaling_amount = np.abs(ndcg_base - ndcg_swapped)
-            lambda_ij[i, j] *= scaling_amount
-
+    # can now compute the scaling matrix
+    swapped_scores = np.array(
+        [[swap(np_scores, i, j) for i in range(N)] for j in range(N)]
+    )
+    swapped_sort_ind = np.argsort(swapped_scores)[:, :, ::-1]
+    swapped_sorted_labels = np_labels[swapped_sort_ind]
+    ndcg_swapped = dcg(swapped_sorted_labels) / idcg
+    # convert to tensor but detach from autograd
+    scaling_matrix = torch.Tensor(np.abs(ndcg_base - ndcg_swapped)).detach()
+    # scale lambda_ij
+    lambda_ij *= scaling_matrix
+    # and sum over first axis
     lambda_i = (lambda_ij).sum(axis=1, keepdim=True)
     return lambda_i
 
@@ -1097,7 +1105,7 @@ def plot_ndcg10(batches, loss_function):
 
     plt.ylabel("NDGC@10")
     plt.xlabel("Epoch")
-    plt.plot(np.arange(1, len(ndcg)+1), ndcg, label=loss_function)
+    plt.plot(np.arange(1, len(ndcg) + 1), ndcg, label=loss_function)
     plt.legend()
 
 
@@ -1132,12 +1140,10 @@ plt.show()
 #
 # It is difficult to immediately discern convergence based on our relevance score plots, as we have no formal definition of convergence. If we take convergence to mean "our values plateau", then we can generally see a convergence at around 20 epochs. This is particularly evident with the pointwise relevance scores which stabilize at scores of approximately 1.75 and 1.25 for relevant and non-relevant documents respectively. This plateauing is arguably not present in the pairwise and listwise plots, although the change is certainly steeper before 20 epochs in both cases. A clearer plateau is discernable at around 60 epochs for pairwise, while what seems like the beginning of a plateau is visible at around 80 epochs for listwise. With this definition of convergence, we can conclude that pointwise loss converges earlier than pairwise loss, which in turn converges earlier than listwise loss.
 #
-# However, while pointwise loss may converge earlier, it seems to converge to generally inappropriate values, with the average relevance score of relevant documents fluctuating around 1.75 instead of the target 3 or 4. A similar issue can be noticed in pairwise loss, which seems to suffering from a positive bias, with non-relevant documents scoring at around 3 (instead of 0, 1, or 2) and relevant documents scoring at around 5 or 6 (rather than 3 or 4). While the same problem can be noticed with listwise loss, when the plateau is finally reached at epoch 80, we see that relevant documents are correctly scored around 4 and non-relevant documents around 0. We do note some variance here - this may be due to the fact that our relevance scores are not binary and that the convergence perhaps was not yet "mature" and our model may have benefitted from further training.
+# However, while pointwise loss may converge earlier, it seems to converge to generally inappropriate values, with the average relevance score of relevant documents fluctuating around 1.75 instead of the target 3 or 4. A similar issue can be noticed in pairwise loss, which seems to be suffering from a positive bias, with non-relevant documents scoring at around 3 (instead of 0, 1, or 2) and relevant documents scoring at around 5 or 6 (rather than 3 or 4). While the same problem can be noticed with listwise loss, when the plateau is finally reached at epoch 80, we see that relevant documents are correctly scored around 4 and non-relevant documents around 0. We do note some variance here - this may be due to the fact that our relevance scores are not binary and that the convergence perhaps was not yet "mature" and our model may have benefitted from further training.
 #
-# Training was limited due to time reasons. It is difficult to present a formal analysis of the time complexity of our models. However what can be said is that pointwise and pairwise loss (as well as its speed up) could be easily vectorized, while listwise loss required two additional loops over $N$ score-label pairs. This made listwise loss $O(N^2)$ slower than pointwise and listwise loss.
+# Training was limited due to time reasons. It is difficult to present a formal analysis of the time complexity of our models. We note that all our losses involve a summation. For pointwise loss, this is over $N$ scores so we have a time complexity of at least $O(N)$. For pairwise loss, our summation is over permutations of pairs of $N$ documents, so this lower bound increases to $O(_NP_2)$. This is later addressed with the sped-up pairwise variant with a single (parallelized) summation over $N$ scores, re-obtaining a time-complexity of $O(N)$. A similar argumentation can be made for listwise loss. However, while pointwise and pairwise loss (as well as its sped-up variant) could be easily vectorized, listwise loss required two additional explicitly written loops (in the form of a list comprehension) over $N$ score-label pairs. This made our listwise loss implementation $O(N^2)$ slower than pointwise and listwise loss.
 #
-# TODO:
-# - perhaps more rigour on this time complexity paragraph
-# - something about NDCG@10
+# In contrast to these differences, our final plot shows very similar performance across all models with respect to the NDCG@10 metric. In fact, all three models can be seen stabilizing at an NDCG@10 of 0.7 after a single epoch of training. Perhaps more training would reveal differences in performance. More importantly though, lower values of k for NDCG@k may reveal improved performances from the more advanced models.
 #
 # ---
