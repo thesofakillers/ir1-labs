@@ -78,7 +78,11 @@ The naive (biased) loss function in Thorsten et al. is given as $\mathcal{L} = \
 > If a loss function cannot be adapted in the IPS formula, discuss the possible
 > reasons.
 
-YOUR ANSWER HERE
+TODO partial answer, still need to figure out if correct and come up with formulas for other loss functions...
+
+For pointwise LTR:
+
+$$\hat{\Delta}_{IPS}(y|\mathbf{x}_i, \bar{\mathbf{y}_i}, o_i) = \sum\limits_{y:o_i(y)=1} \frac{||r_i(y) - s_i||^2}{Q(o_i(y)=1|\mathbf{x}_i, \bar{\mathbf{y}}_i, r_i)}$$
 
 ## 4 Extensions to IPS
 
