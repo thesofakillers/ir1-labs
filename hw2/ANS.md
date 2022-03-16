@@ -132,7 +132,34 @@ YOUR ANSWER HERE
 > 30.0p How do counterfactual and online learning to rank approaches compare to
 > each other w.r.t ranking performance and user experience?
 
-YOUR ANSWER HERE
+Jagerman et al. [4] investigate how counterfactual learning to rank (CLTR) and
+online learning to rank (OLTR) compare to each other w.r.t ranking performance
+and user experience.
+
+With regards to ranking performance, which model performs better depends on the
+deployment setting. In cases where there is a complete absense of selection bias
+and low amounts of position bias and interaction noise, CLTR tends to outperform
+OLTR. This can be seen in the top row of Figure 1 of the work, where under
+binarized click behaviour CF-DCG (one of the CLTR methods considered)
+outperforms PDCG (the main OLTR method considered). However, in all other cases,
+i.e. cases with any combination of selection bias, high position bias and high
+interation bias, OLTR approaches are found to outperform CLTR approaches. This
+can be seen both in the remaining subplots of Figure 1 as well as the subplots
+of Figure 2 of the work.
+
+With regards to user experience, this once again depends on the deployment
+setting and more importantly on what the interested parties define to be "good"
+user experience. With OLTR, user experience is more "responsive", with the model
+learning "on the fly" as the user interacts with the search interface. However,
+this is at the expense of facing very poor performance during earlier stages of
+deployment, as can be seen in Figures 3 and 4 of the work. This poor performance
+stage is quickly improved. CLTR on the other hand can provide its optimal
+performance from the get-go, at the expense of not being able to react to user
+interactions. Here, model-drift can occur, which is often addressed by cycling
+optimization and deployment. While this can often address the issue, in certain
+circumstances, such as settings with high levels of noise, the authors found
+that these cycles can actually worsen performance drastically and hence
+negatively affect user experience.
 
 ## 9 Counterfactual LTR
 
