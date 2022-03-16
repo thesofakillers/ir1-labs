@@ -56,12 +56,12 @@ additional training data will further increase performance.
 > formulation is the bias caused by implicitly treating non-clicked items as not
 > relevant. Discuss when this implicit bias is problematic?
 
-YOUR ANSWER HERE
+Assume document $y'$ s.t. $o_i(y') = 0 \wedge r_i(y') = 1$. Here $o_i(y') = 0$ would imply that the document was not clicked. It means that it will not be included in the empirical risk $\hat{R}_{IPS}(S)$ making this document virtually invisible during training. This would not be problematic the  document is fairly similar in content and structure to other documents deemed relevant. Even when we did not explicitly train on that document the new model could still rank it high due to it's similarity. However this could be problematic for new content, for example in cases when new documents show up for a topic but may include unseen before content. This could be the case with news where recent developments on a certain news topic - e.g. new events occuring or new people being mentioned.
 
 > 2c) 20.0p Propose a simple method to correct for the implicit bias of
 > non-clicks.
 
-YOUR ANSWER HERE
+One method is to randomise results to make sure that documents that were not clicked appear closer to the top of the results and therefore a user is more likely to observe them. It's risky to randomly shuffle all results, therefore a RandPair method could be used. This means chosing a random pair of documents to swap for every user query. This makes sure that position bias is overcome and increases the chance that a new unseen document is displayed in a higher rank and therefore clicked.
 
 ## 3 LTR with IPS
 
@@ -71,14 +71,18 @@ YOUR ANSWER HERE
 > unbiased using the IPS formula and discuss what is the property of that loss
 > function that allows for IPS correction.
 
-YOUR ANSWER HERE
+The naive (biased) loss function in Thorsten et al. is given as $\mathcal{L} = \frac{1}{N} \sum\limits_{i=1}^{N}\sum\limits_{y \in \mathbf{y}} rank(y|\mathbf{y}) \cdot r_i(y)$. We can unbias this function using IPS because the loss is pointwise - meaning it is the sum of individual losses per query.
 
 > 3b) 40.0p Try to provide an IPS corrected formula for each of the three LTR
 > loss functions that you have seen and implemented in the computer assignment.
 > If a loss function cannot be adapted in the IPS formula, discuss the possible
 > reasons.
 
-YOUR ANSWER HERE
+TODO partial answer, still need to figure out if correct and come up with formulas for other loss functions...
+
+For pointwise LTR:
+
+$$\hat{\Delta}_{IPS}(y|\mathbf{x}_i, \bar{\mathbf{y}_i}, o_i) = \sum\limits_{y:o_i(y)=1} \frac{||r_i(y) - s_i||^2}{Q(o_i(y)=1|\mathbf{x}_i, \bar{\mathbf{y}}_i, r_i)}$$
 
 ## 4 Extensions to IPS
 
@@ -86,7 +90,7 @@ YOUR ANSWER HERE
 > be extended to the graded user feedback, e.g., a 0 to 5 rating scenario in a
 > recommendation.
 
-YOUR ANSWER HERE
+The general IPS formula in the paper is $\hat{\Delta}_{IPS}(\mathbf{y}|\mathbf{x}_i, \bar{\mathbf{y}}, o_i) = \sum\limits_{y:o_i(y)=1} \frac{rank(y|\mathbf{y}) \cdot r_i(y)}{Q(o_i(y))=1|\mathbf{x}_i, \bar{\mathbf{y}_i}, r_i)}$. In the case of binary clicks $r_i(y) \in \{0,1\}$ because we assume a click means the document is relevant. With graded user feedback then $r_i(y) \in \{0..5\}$, however this would not change the IPS formula above.
 
 > 4b) 20.0p One of the issues with IPS is its high variance. Explain the issue
 > and discuss what can be done to reduce the variance of IPS.
