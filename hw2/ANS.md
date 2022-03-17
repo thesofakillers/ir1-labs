@@ -172,8 +172,14 @@ negatively affect user experience.
 > 9a) 20.0p Counterfactual LTR assumes a relation between a click on a document
 > and the document's relevance. What is this assumption?
 
-YOUR ANSWER HERE
+In counterfactual LTR it is assumed that a user clicking on a documents means that this document is relevant for this particular user. Of course not all clicks can be clear indication of a document's relevance - sometimes the user may have misclicked. Therefore part of counterfactual LTR is also modelling click noise. However, the assumption is that noise can be resolved by collecting more data.
+
+TODO - probably need to elaborate more...
 
 > 9b) 15.0p Give two situations where this assumption does not hold.
 
-YOUR ANSWER HERE
+A click may not always indicate document relevance. There is also click noise. The following are a couple of sitations where a click is due to noise and does not correspond to relevance:
+- Misclick by the user - the user did not really intend to click on the document.
+- Clickbait - a document which intentionally tries to mislead users but is not actually relevant.
+
+TODO probably need to elaborate more...
