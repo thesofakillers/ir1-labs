@@ -276,17 +276,22 @@ multileaving improves the learning speed compared to DBDG.
 
 > 30.0p What are the two major advantages of PDGD over MGD?
 
-- applicable to all differentiable ranking models
-- does rely on sampling for exploration and therefore it can choose where to
-  explore
+PDGD has two main advantages over MGD:
 
-Matteo: PDGD performs considerably better in terms of
+1. PDGD explicitly models uncertainty over the documents per query. This means
+   that, depending on the query, PDGD can be very confident or completely
+   uncertain about its ranking for that specific query. Consequently, it varies
+   the amount of exploration per query such that the system can focus on the
+   areas where it can improve, and avoid unnecessary explorations when possible.
+2. PDGD works for any differentiable scoring function $f$ and does not rely on
+   sampling model variants. Contrarily, MGD samples from the unit sphere around
+   the model, performing inefficiently for non-linear models.
 
-1. final convergence
-2. user experience during optimization
-3. learning speed
+Empirically, Oosterhuis et al. [2] also show that PDGD achieves clearly higher
+performance over MGD in Fiugre 2 and Table 4.
 
-But they only want two??
+Overall, these differences allow PDGD to achieve significantly higher
+performance than MGD.
 
 ## 8 Counterfactuals and online learning
 
