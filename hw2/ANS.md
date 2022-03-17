@@ -71,7 +71,15 @@ One method is to randomise results to make sure that documents that were not cli
 > unbiased using the IPS formula and discuss what is the property of that loss
 > function that allows for IPS correction.
 
-The naive (biased) loss function in Thorsten et al. is given as $\mathcal{L} = \frac{1}{N} \sum\limits_{i=1}^{N}\sum\limits_{y \in \mathbf{y}} rank(y|\mathbf{y}) \cdot r_i(y)$. We can unbias this function using IPS because the loss is pointwise - meaning it is the sum of individual losses per query.
+The naive (biased) loss function per query in Thorsten et al. is given as $\Delta(\mathbf{y}|\mathbf{x}_i, r_i) = \sum\limits_{y \in \mathbf{y}} rank(y|\mathbf{y}) \cdot r_i(y)$.
+
+We can see how that function is biased by taking the expected value w.r.t. $o_i$ which we assume is a random variable that determines the probability of a user examining a document:
+
+$$\mathbb{E}_{o_i}[\Delta(\mathbf{y}|\mathbf{x}_i, r_i)] = \mathbb{E}_{o_i}[\sum\limits_{y \in \mathbf{y}} rank(y|\mathbf{y}) \cdot r_i(y)] = \sum\limits_{y \in \mathbf{y}} rank(y|\mathbf{y}) \cdot r_i(y) \cdot Q(o_i(y))=1|\mathbf{x}_i, \bar{\mathbf{y}_i}, r_i)$$
+
+We see from this formula that we need to divide every element in the sum by exactly Q(o_i(y))=1|\mathbf{x}_i, \bar{\mathbf{y}_i}, r_i) in order to obtain the naive definition of the loss function which is equivalent to debiasing.
+
+We can unbias this function using IPS because the loss is pointwise - meaning it is the sum of individual losses per query. Or in other words the loss function is linearly decomposable.
 
 > 3b) 40.0p Try to provide an IPS corrected formula for each of the three LTR
 > loss functions that you have seen and implemented in the computer assignment.
@@ -82,7 +90,9 @@ TODO partial answer, still need to figure out if correct and come up with formul
 
 For pointwise LTR:
 
-$$\hat{\Delta}_{IPS}(y|\mathbf{x}_i, \bar{\mathbf{y}_i}, o_i) = \sum\limits_{y:o_i(y)=1} \frac{||r_i(y) - s_i||^2}{Q(o_i(y)=1|\mathbf{x}_i, \bar{\mathbf{y}}_i, r_i)}$$
+$$\hat{\Delta}_{IPS}(y|\mathbf{x}_i, \bar{\mathbf{y}_i}, o_i) = \sum\limits_{y:o_i(y)=1} \frac{||r_i(y) - s_i(y)||^2}{Q(o_i(y)=1|\mathbf{x}_i, \bar{\mathbf{y}}_i, r_i)}$$
+
+Where $s_i(y)$ is the score assigned to document $y$ by the ranking model.
 
 ## 4 Extensions to IPS
 
