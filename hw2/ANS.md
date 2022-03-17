@@ -71,7 +71,7 @@ One method is to randomise results to make sure that documents that were not cli
 > unbiased using the IPS formula and discuss what is the property of that loss
 > function that allows for IPS correction.
 
-The naive (biased) loss function per query in Thorsten et al. is given as $\Delta(\mathbf{y}|\mathbf{x}_i, r_i) = \sum\limits_{y \in \mathbf{y}} rank(y|\mathbf{y}) \cdot r_i(y)$.
+The naive (biased) loss function per query in Thorsten et al. is given as $\Delta(\mathbf{y}|\mathbf{x}_i, r_i) = \sum\limits_{y \in \mathbf{y}} rank(y|\mathbf{y}) \cdot r_i(y)$. Because in the base case $r_i(y) \in \{0, 1\}$ because it is based on click data, then intuitively the loss function tries to minimise the rank for each document that is considered relevant (documents that are not relevant - i.e. $r_i(y) = 0$ are discarded).
 
 We can see how that function is biased by taking the expected value w.r.t. $o_i$ which we assume is a random variable that determines the probability of a user examining a document:
 
