@@ -56,8 +56,8 @@ additional training data will further increase performance.
 > formulation is the bias caused by implicitly treating non-clicked items as not
 > relevant. Discuss when this implicit bias is problematic?
 
-Assume document $y'$ s.t. $(o_i(y') = 0 )$ and $(r_i(y') = 1)$. Here
-$o_i(y') = 0$ would imply that the document was not clicked. It means that it
+Assume document $y'$ such that $(o_i(y') = 0 )$ and $(r_i(y') = 1)$. Here
+$o_i(y') = 0$ would imply that the document was not clicked. This means that it
 will not be included in the empirical risk $\hat{R}_{IPS}(S)$ making this
 document virtually invisible during training. This would not be problematic if
 the document is fairly similar in content and structure to other documents
@@ -75,9 +75,9 @@ One method is to randomise results to make sure that documents that were not
 clicked appear closer to the top of the results and therefore a user is more
 likely to observe them. It's risky to randomly shuffle all results, therefore a
 RandPair method could be used. This means chosing a random pair of documents to
-swap for every user query. This makes sure that position bias is overcome and
-increases the chance that a new unseen document is displayed in a higher rank
-and therefore clicked.
+swap for every user query. This addresses that position bias by increasing the
+chance that a new unseen document is displayed in a higher rank and therefore
+clicked.
 
 ## 3 LTR with IPS
 
@@ -87,26 +87,40 @@ and therefore clicked.
 > unbiased using the IPS formula and discuss what is the property of that loss
 > function that allows for IPS correction.
 
-The naive (biased) loss function per query in Thorsten et al. is given as
+The naive (biased) loss function per query $\mathbf{x}_i$, ranking $\mathbf{y}$
+and ground-truth relevance score $r_i$ in Thorsten et al. is given as
 
 $$
 \Delta(\mathbf{y}|\mathbf{x}_i, r_i) = \sum\limits_{y \in \mathbf{y}} rank(y|\mathbf{y}) \cdot r_i(y),
 $$
 
-Because in the base case $r_i(y) \in \{0, 1\}$ because it is based on click
-data, then intuitively the loss function tries to minimise the rank for each
-document that is considered relevant (documents that are not relevant - i.e.
-$r_i(y) = 0$ are discarded).
+where $rank(y|\mathbf{y})$ is the rank of a document $y$. In the base case
+$r_i(y) \in \{0, 1\}$ because it is based on click data. Intuitively then the
+loss function tries to minimise the rank for each document that is considered
+relevant (documents that are not relevant - i.e. $r_i(y) = 0$ are discarded).
 
 We can see how that function is biased by taking the expected value w.r.t. $o_i$
 which we assume is a random variable that determines the probability of a user
 examining a document:
 
-$$\mathbb{E}_{o_i}[\Delta(\mathbf{y}|\mathbf{x}_i, r_i)] = \mathbb{E}_{o_i}[\sum\limits_{y \in \mathbf{y}} rank(y|\mathbf{y}) \cdot r_i(y)] = \sum\limits_{y \in \mathbf{y}} rank(y|\mathbf{y}) \cdot r_i(y) \cdot Q(o_i(y)=1|\mathbf{x}_i, \bar{\mathbf{y}_i}, r_i)$$
+$$
+\begin{aligned}
+\mathbb{E}_{o_i}[\Delta(\mathbf{y}|\mathbf{x}_i, r_i)] &=
+  \mathbb{E}_{o_i}[
+    \sum\limits_{y \in \mathbf{y}} rank(y|\mathbf{y})
+      \cdot r_i(y)
+      ]\\
+      &= \sum\limits_{y \in \mathbf{y}}
+        rank(y|\mathbf{y}) \cdot r_i(y) \cdot Q(o_i(y)=1|\mathbf{x}_i, \bar{\mathbf{y}_i}, r_i)
+\end{aligned}
+$$
 
-We see from this formula that we need to divide every element in the sum by
-exactly Q(o_i(y))=1|\mathbf{x}\_i, \bar{\mathbf{y}\_i}, r_i) in order to obtain
-the naive definition of the loss function which is equivalent to debiasing.
+We see from this formula that to debias we need to divide every element in the
+sum by exactly $Q(o_i(y))=1|\mathbf{x}_i, \bar{\mathbf{y}_i}, r_i)$ in order to
+obtain the naive definition of the loss function. This is nothing more than the
+marginal probability of observing the relevance $r_i(y)$ for the given query,
+given the presentation of a ranking $\mathbf{\bar{y}}$. This term is known as
+the _propensity_.
 
 We can unbias this function using IPS because the loss is pointwise - meaning it
 is the sum of individual losses per query. Or in other words the loss function
@@ -116,11 +130,6 @@ is additvely linearly decomposable.
 > loss functions that you have seen and implemented in the computer assignment.
 > If a loss function cannot be adapted in the IPS formula, discuss the possible
 > reasons.
-
-TODO partial answer, still need to figure out if correct and come up with
-formulas for other loss functions...
-
-### Pointwise loss
 
 Without an IPS correction, the pointwise loss $\Delta^{(\cdot)}$ for a ranking
 $\mathbf{y}$ with user query $\mathbf{x}_i$ is defined as
@@ -132,18 +141,23 @@ $$
   \sum_{y:o_i(y)=1}||r_i(y) - s_i(y)||^2
 $$
 
-Where $s_i(y)$ is the score assigned to document $y$ by the ranking model,
+Where $s_i(y)$ is the score assigned to document $y$ by the ranking model and
 $r_i(y)$ is the ground-truth label (relevance score) for the document.
 
-To add
+To integrate an IPS correction so to obtain an unbiased loss function, we modify
+the equation above as such
 
 $$
-\hat{\Delta}_{IPS}^{(\cdot)}(\mathbf{y}|\mathbf{x}_i, \bar{\mathbf{y}_i}, o_i) = \sum\limits_{y:o_i(y)=1} \frac{||r_i(y) - s_i(y)||^2}{Q(o_i(y)=1|\mathbf{x}_i, \bar{\mathbf{y}}_i, r_i)}
+\hat{\Delta}_{IPS}^{(\cdot)}(\mathbf{y}|\mathbf{x}_i, \bar{\mathbf{y}_i}, o_i) = \sum\limits_{y:o_i(y)=1} \frac{||r_i(y) - s_i(y)||^2}{Q(o_i(y)=1|\mathbf{x}_i, \bar{\mathbf{y}}_i, r_i)},
 $$
 
-### Pairwise loss
+where we divide each term in our summation by
+$Q(o_i(y)=1|\mathbf{x}_i, \bar{\mathbf{y}}_i, r_i)$, which is the propensity
+term defined in 3a.
 
-### Listwisa loss
+Because the pairwise loss function and by extension also the listwise loss
+function are not additive and linearly separable we cannot obtain an unbiased
+loss function, as this property is necessary to unbias via IPS.
 
 ## 4 Extensions to IPS
 
@@ -162,7 +176,9 @@ means the document is relevant. With graded user feedback then the only change
 would be that $r_i(y) \in \{0..5\}$. This however would not change the IPS
 formula as expressed above.
 
-- might have to write some stuff for $Q$.
+It can be noted that when user feedback is graded, this is feedback is typically
+much more explicit/direct (e.g. movie reviews). This could simplify propensity
+estimation greatly.
 
 > 4b) 20.0p One of the issues with IPS is its high variance. Explain the issue
 > and discuss what can be done to reduce the variance of IPS.
@@ -172,9 +188,14 @@ the presence of one or a few data points with extremely small propensity which
 overpower the rest of the data set. A typical solution is propensity clipping
 where we modify the IPS formula by introducing a new parameter $\tau$ which
 imposes a lower bound to the propensity score (i.e. clips it) so that the value
-in the denominator is never too small.
+in the denominator is never too small. The updated loss per query now looks like
 
-TODO should we include formula for propensity clipping?
+$$
+\hat{\Delta}_{IPS}(\mathbf{y}|\mathbf{x}_i, \bar{\mathbf{y}}, o_i) =
+\sum\limits_{y:o_i(y)=1}
+  \frac{rank(y|\mathbf{y}) \cdot r_i(y)}
+  {\max{\{\tau, Q(o_i(y)=1|\mathbf{x}_i, \bar{\mathbf{y}_i}, r_i)}\}}.
+$$
 
 ## 5 Interleaving
 
@@ -259,8 +280,8 @@ multileaving improves the learning speed compared to DBDG.
 - does rely on sampling for exploration and therefore it can choose where to
   explore
 
-Matteo:
-PDGD performs considerably better in terms of 
+Matteo: PDGD performs considerably better in terms of
+
 1. final convergence
 2. user experience during optimization
 3. learning speed
