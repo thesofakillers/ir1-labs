@@ -97,6 +97,8 @@ The general IPS formula in the paper is $\hat{\Delta}_{IPS}(\mathbf{y}|\mathbf{x
 
 IPS may suffer from high variance due to many factors. The most common reason is the presence of one or a few data points with extremely small propensity which overpower the rest of the data set. A typical solution is propensity clipping where we modify the IPS formula by introducing a new parameter $\tau$ which imposes a lower bound to the propensity score (i.e. clips it) so that the value in the denominator is never too small.
 
+TODO should we include formula for propensity clipping?
+
 ## 5 Interleaving
 
 > To perform online evaluation in information retrieval interactions of users
