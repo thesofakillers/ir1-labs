@@ -176,7 +176,7 @@ means the document is relevant. With graded user feedback then the only change
 would be that $r_i(y) \in \{0..5\}$. This however would not change the IPS
 formula as expressed above.
 
-It can be noted that when user feedback is graded, this is feedback is typically
+It can be noted that when user feedback is graded, this feedback is typically
 much more explicit/direct (e.g. movie reviews). This could simplify propensity
 estimation greatly.
 
@@ -334,29 +334,12 @@ negatively affect user experience.
 > 9a) 20.0p Counterfactual LTR assumes a relation between a click on a document
 > and the document's relevance. What is this assumption?
 
-In counterfactual LTR it is assumed that a user clicking on a documents means
-that this document is relevant for this particular user. Of course not all
-clicks can be clear indication of a document's relevance - sometimes the user
-may have misclicked. Therefore part of counterfactual LTR is also modelling
-click noise. However, the assumption is that noise can be resolved by collecting
-more data.
-
-TODO - probably need to elaborate more...
+In counterfactual LTR it is assumed that a user clicking on a documents means that this document is relevant for this particular user. Of course not all clicks can be clear indication of a document's relevance - sometimes the user may have misclicked. Therefore part of counterfactual LTR is also modelling click noise. However, the assumption is that noise can be resolved by collecting more data.
 
 > 9b) 15.0p Give two situations where this assumption does not hold.
 
-A click may not always indicate document relevance. There is also click noise.
-The following are a couple of sitations where a click is due to noise and does
-not correspond to relevance:
+A click may not always indicate document relevance. There is also click noise. The following are a couple of sitations where a click is due to noise and does not correspond to relevance:
 
-- Misclick by the user - the user did not really intend to click on the
-  document.
-- Clickbait - a document which intentionally tries to mislead users but is not
-  actually relevant.
-- don't click something that is relevant.
+- A misclick by the user - the user did not really intend to click on the document.
+- Clickbait - a document which intentionally tries to mislead users but is not actually relevant.
 
-- you click on something that is not relevant - e.g. clickbait
-- don't click on something that is relevant - preference bias ?? - e.g. brands
-  you don't like or media outlets
-
-TODO probably need to elaborate more...
