@@ -75,7 +75,7 @@ The naive (biased) loss function per query in Thorsten et al. is given as $\Delt
 
 We can see how that function is biased by taking the expected value w.r.t. $o_i$ which we assume is a random variable that determines the probability of a user examining a document:
 
-$$\mathbb{E}_{o_i}[\Delta(\mathbf{y}|\mathbf{x}_i, r_i)] = \mathbb{E}_{o_i}[\sum\limits_{y \in \mathbf{y}} rank(y|\mathbf{y}) \cdot r_i(y)] = \sum\limits_{y \in \mathbf{y}} rank(y|\mathbf{y}) \cdot r_i(y) \cdot Q(o_i(y))=1|\mathbf{x}_i, \bar{\mathbf{y}_i}, r_i)$$
+$$\mathbb{E}_{o_i}[\Delta(\mathbf{y}|\mathbf{x}_i, r_i)] = \mathbb{E}_{o_i}[\sum\limits_{y \in \mathbf{y}} rank(y|\mathbf{y}) \cdot r_i(y)] = \sum\limits_{y \in \mathbf{y}} rank(y|\mathbf{y}) \cdot r_i(y) \cdot Q(o_i(y)=1|\mathbf{x}_i, \bar{\mathbf{y}_i}, r_i)$$
 
 We see from this formula that we need to divide every element in the sum by exactly Q(o_i(y))=1|\mathbf{x}_i, \bar{\mathbf{y}_i}, r_i) in order to obtain the naive definition of the loss function which is equivalent to debiasing.
 
@@ -100,7 +100,7 @@ Where $s_i(y)$ is the score assigned to document $y$ by the ranking model.
 > be extended to the graded user feedback, e.g., a 0 to 5 rating scenario in a
 > recommendation.
 
-The general IPS formula in the paper is $\hat{\Delta}_{IPS}(\mathbf{y}|\mathbf{x}_i, \bar{\mathbf{y}}, o_i) = \sum\limits_{y:o_i(y)=1} \frac{rank(y|\mathbf{y}) \cdot r_i(y)}{Q(o_i(y))=1|\mathbf{x}_i, \bar{\mathbf{y}_i}, r_i)}$. In the case of binary clicks $r_i(y) \in \{0,1\}$ because we assume a click means the document is relevant. With graded user feedback then $r_i(y) \in \{0..5\}$, however this would not change the IPS formula above.
+The general IPS formula in the paper is $\hat{\Delta}_{IPS}(\mathbf{y}|\mathbf{x}_i, \bar{\mathbf{y}}, o_i) = \sum\limits_{y:o_i(y)=1} \frac{rank(y|\mathbf{y}) \cdot r_i(y)}{Q(o_i(y)=1|\mathbf{x}_i, \bar{\mathbf{y}_i}, r_i)}$. In the case of binary clicks $r_i(y) \in \{0,1\}$ because we assume a click means the document is relevant. With graded user feedback then $r_i(y) \in \{0..5\}$, however this would not change the IPS formula above.
 
 > 4b) 20.0p One of the issues with IPS is its high variance. Explain the issue
 > and discuss what can be done to reduce the variance of IPS.
