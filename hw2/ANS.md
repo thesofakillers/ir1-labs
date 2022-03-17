@@ -95,7 +95,7 @@ The general IPS formula in the paper is $\hat{\Delta}_{IPS}(\mathbf{y}|\mathbf{x
 > 4b) 20.0p One of the issues with IPS is its high variance. Explain the issue
 > and discuss what can be done to reduce the variance of IPS.
 
-YOUR ANSWER HERE
+IPS may suffer from high variance due to many factors. The most common reason is the presence of one or a few data points with extremely small propensity which overpower the rest of the data set. A typical solution is propensity clipping where we modify the IPS formula by introducing a new parameter $\tau$ which imposes a lower bound to the propensity score (i.e. clips it) so that the value in the denominator is never too small.
 
 ## 5 Interleaving
 
