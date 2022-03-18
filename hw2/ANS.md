@@ -334,12 +334,25 @@ negatively affect user experience.
 > 9a) 20.0p Counterfactual LTR assumes a relation between a click on a document
 > and the document's relevance. What is this assumption?
 
-In counterfactual LTR it is assumed that a user clicking on a documents means that this document is relevant for this particular user. Of course not all clicks can be clear indication of a document's relevance - sometimes the user may have misclicked. Therefore part of counterfactual LTR is also modelling click noise. However, the assumption is that noise can be resolved by collecting more data.
+In counterfactual LTR it is assumed that a user clicking on a documents means
+that this document is relevant for this particular user. Furthermore, it is
+assumed that non-clicked documents are either not relevant or simply not
+observed.
 
 > 9b) 15.0p Give two situations where this assumption does not hold.
 
-A click may not always indicate document relevance. There is also click noise. The following are a couple of sitations where a click is due to noise and does not correspond to relevance:
+A click may not always indicate document relevance. Likewise, a lack of click
+may not always indicate document irrelevance. There is also click noise. The
+following are a couple of situations the assumption that click = relevance does
+not hold:
 
-- A misclick by the user - the user did not really intend to click on the document.
-- Clickbait - a document which intentionally tries to mislead users but is not actually relevant.
-
+- A misclick by the user - the user did not really intend to click on the
+  document. This is essentially what constitutes click noise.
+- Clickbait - a document which intentionally tries to mislead users but is not
+  actually relevant. The user clicks on it expecting something relevant but
+  finding something that is not. This is an instant of trust bias, which may
+  have the opposite effect: due to trust bias, the user does not click on a
+  clearly relevant result, because they do not trust the webpage or do not want
+  to drive traffic to them. In the IR system, with our assumption that click =
+  relevance, this interaction signals that the webpage is not relevant, while in
+  reality it is.
