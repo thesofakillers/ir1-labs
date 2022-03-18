@@ -131,33 +131,88 @@ is additvely linearly decomposable.
 > If a loss function cannot be adapted in the IPS formula, discuss the possible
 > reasons.
 
-Without an IPS correction, the pointwise loss $\Delta^{(\cdot)}$ for a ranking
-$\mathbf{y}$ with user query $\mathbf{x}_i$ is defined as
+To apply an IPS correction to a loss function, we need our loss function to be
+additively linearly decomposible. What this means is that some value $\varphi$
+is added to the loss function for each document $d_i$ and each of these values
+is a function of the document's ground-truth relevance score $y(d_i)$ and rank
+$rank(d_i | f_\theta, D)$, where $f_\theta$ is the score outputted by our
+ranking model. Ultimately this allows us to express the terms in the summation
+as a function of the document's rank multiplied by an indicator variable for
+relevance. Mathematically, to be able to apply an IPS correction, we need first
+to be able to write our loss function $\mathcal{L}$ as such:
 
 $$
-\Delta^{(\cdot)}(
-  \mathbf{y}|\mathbf{x}_i, o_i
-  ) =
-  \sum_{y:o_i(y)=1}||r_i(y) - s_i(y)||^2
+\mathcal{L} = \sum_{d_i \in D}\varphi(rank(d_i | f_\theta, D)) \cdot y(d_i).
 $$
 
-Where $s_i(y)$ is the score assigned to document $y$ by the ranking model and
-$r_i(y)$ is the ground-truth label (relevance score) for the document.
-
-To integrate an IPS correction so to obtain an unbiased loss function, we modify
-the equation above as such
+The IPS correction would then result in the following unbiased loss function
+$\mathcal{L}'$
 
 $$
-\hat{\Delta}_{IPS}^{(\cdot)}(\mathbf{y}|\mathbf{x}_i, \bar{\mathbf{y}_i}, o_i) = \sum\limits_{y:o_i(y)=1} \frac{||r_i(y) - s_i(y)||^2}{Q(o_i(y)=1|\mathbf{x}_i, \bar{\mathbf{y}}_i, r_i)},
+\mathcal{L}' = \sum_{y:o_i(y) = 1} \frac{\varphi(rank(d_i | f_\theta, D)) \cdot y(d_i)}{Q(o_i(y) = 1 |\mathbf{x}_i, \mathbf{\bar{y_i}}, y(d_i))},
 $$
 
-where we divide each term in our summation by
-$Q(o_i(y)=1|\mathbf{x}_i, \bar{\mathbf{y}}_i, r_i)$, which is the propensity
-term defined in 3a.
+where we are scaling, as described in 3a, by the inverse propensity. Note that
+we are now summing only over the observed documents.
 
-Because the pairwise loss function and by extension also the listwise loss
+### Pointwise Loss
+
+Without an IPS correction, the pointwise loss $\mathcal{L}_{(\cdot)}$ is given
+by
+
+$$
+\mathcal{L}_{(\cdot)} = \sum_{q, d}||y_{q,d} - f_\theta(\mathbf{x}_{q,d})||^2,
+$$
+
+for each query $q$ document $d$ pair, given input vector $\mathbf{x}_{q,d}$ and
+ground-truth relevance score $y_{q,d}$. This is nothing more than MSE loss.
+
+We see that pointwise loss is not linearly decomposible: there is no way to
+factor out the ground-truth relevance score $y_{q,d}$ without modifying the
+underlying loss function such that it no longer is MSE. Furthermore, even if we
+were able to factor our loss function as required, we would still have the
+requirement of only summing over observed documents, which, when using clicks as
+indicators of relevance (and observance), would cause our MSE loss to only
+consider relevant documents and hence update weights such that all documents are
+scored as relevant. As such we conclude that an IPS correction cannot be applied
+to pointwise loss.
+
+### Pairwise Loss
+
+Without an IPS correction, the pairwise loss $\mathcal{L}_{(\cdot, \cdot)}$ is
+given by
+
+$$
+\mathcal{L}_{(\cdot, \cdot)} =
+\sum_{i \in D}\sum_{j \in D} \frac{1}{2}(1- S_{ij})\sigma(s_i - s_j) + \log(1+ e^{-\sigma(s_i - s_j)}),
+$$
+
+where we now sum over pairs $(i, j)$ of documents, and $S_{ij}$ is an indicator
+function $\in {\{1, 0, -1\}}$ depending on whether the ground-truth relevance
+score of $d_i$ is greater, equal or less than the ground-truth relevance score
+of $d_j$, respectively. $\sigma$ is some constant.
+
+We once again have the same issue as encountered in pointwise loss: pairwise
+loss is not additively linearly decomposible - there is no way to express it as
+a sum of scores function of rank multiplied by relevance indicators.
+
+Furthermore, because of the pairwise nature of pairwise loss, interactions with
+a particular document (captured in propensity) affect the contributions of all
+other documents to the loss. However, IPS only considers the observation of
+individual documents, and applies this correction individually, making it
+impossible to apply the same correction to pair-wise approaches.
+
+We therefore conclude that pairwise loss cannot be corrected with IPS.
+
+### Listwise Loss
+
+Listwise loss is simply a scaling of the gradient of the pairwise loss. As such,
+we run into the same issues as described for pairwise loss. As such, we
+similarly conclude that we cannot apply an IPS correction to listwise loss.
+
+<!-- Because the pairwise loss function and by extension also the listwise loss
 function are not additive and linearly separable we cannot obtain an unbiased
-loss function, as this property is necessary to unbias via IPS.
+loss function, as this property is necessary to unbias via IPS. -->
 
 ## 4 Extensions to IPS
 
@@ -335,8 +390,8 @@ negatively affect user experience.
 > and the document's relevance. What is this assumption?
 
 In counterfactual LTR it is assumed that a user clicking on a documents means
-that this document is relevant for this particular user. Furthermore, it is
-assumed that non-clicked documents are either not relevant or simply not
+that this document is observed and relevant. Furthermore, the reverse assumption
+is held: non-clicked documents are either not relevant and/or simply not
 observed.
 
 > 9b) 15.0p Give two situations where this assumption does not hold.
