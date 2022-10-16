@@ -1,6 +1,23 @@
 # Information Retrieval 1 - Assignments
 
-Assignments for Information Retrieval 1 - UvA MSc AI
+Assignments for Information Retrieval 1, a course for our MSc in AI. We are 
+omitting our University name for searchability reasons. Our MSc university 
+can be found on our LinkedIns or CVs.
+
+## Content
+
+For more details on each assignment, users are encourage to visit the
+respective folders. In general, the assignment covered the following:
+
+1. Assignment 1:
+    - Term-based matching (TF-IDF, BM25, QL)
+    - Semantic-based matching (LSI, LDA)
+    - re-ranking
+2. Assignment 2:Offline Learning to Rank (LTR)
+    - Pointwtise LTR
+    - Pairwise LTR
+    - Listwise LTR
+    - Evaluation
 
 ## Development
 
